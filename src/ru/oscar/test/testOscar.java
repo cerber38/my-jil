@@ -1,4 +1,4 @@
-package ru.oscar.util;
+package ru.oscar.test;
 
 import ru.oscar.icq.constants.DirectConnectConstants;
 import ru.oscar.icq.constants.PrivacyStatusConstants;
