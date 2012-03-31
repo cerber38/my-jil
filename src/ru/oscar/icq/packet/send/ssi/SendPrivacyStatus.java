@@ -6,6 +6,8 @@ import ru.oscar.icq.Flap;
 import ru.oscar.icq.Snac;
 import ru.oscar.icq.Tlv;
 import ru.oscar.icq.constants.PrivacyStatusConstants;
+import ru.oscar.icq.core.Connect;
+import ru.oscar.icq.util.Util;
 
 /**
  * snac (13, 9)

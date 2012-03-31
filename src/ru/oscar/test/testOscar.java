@@ -9,6 +9,7 @@ import ru.oscar.icq.constants.XStatusConstants;
 import ru.oscar.icq.core.Connect;
 import ru.oscar.icq.core.api.IcqAPI;
 import ru.oscar.icq.core.api.events.MessageEvent;
+import ru.oscar.icq.core.api.events.SsiAckEvent;
 import ru.oscar.icq.core.api.events.XStatusEvent;
 import ru.oscar.icq.core.api.listener.ListenerConnection;
 import ru.oscar.icq.core.api.listener.ListenerContactList;
@@ -202,6 +203,30 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
     public void isLoadedContactList() {
         System.out.println("Contact list is loaded.");
         System.out.println(c.getContactList().toString());
+    }
+
+    public void onSsiAck(SsiAckEvent e) {
+        System.out.println("On ssi modifying ask:");
+        System.out.println("(" + e.getResults().getCode() + ") " + e.getResults().toString());    
+    }
+    
+    /**
+     * Добавим контакт в группу
+     * @param sn
+     * @param group 
+     */
+    
+    public void addContact(String sn, String group){
+        c.getContactList().addContact(sn, group);
+    }
+    
+    /**
+     * Удалим контакт
+     * @param sn 
+     */
+    
+    public void removeContact(String sn){
+        c.getContactList().removeContact(sn);
     }
 
 }

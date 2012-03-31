@@ -1,6 +1,10 @@
 
 package ru.oscar.icq.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import ru.oscar.icq.DataWork;
+
 /**
  * @author Kornackiy Alexsandr
  */
@@ -117,24 +121,24 @@ public class StringUtil {
         return ucs2be;
     }    
         
-	public static String utf8ByteArrayToString(byte[] arr, int off, int len){
-    	// Length check
-        if (off + len > arr.length) {
-            return "";
-        }
+	public static String utf8ByteArrayToString(byte[] arr, int off, int len){          
+            // Length check
+            if (off + len > arr.length) {
+                return "";
+            }
 
-        // Remove \0's at the end
-        while ((len > 0) && (arr[off + len - 1] == 0x00)){
-            len--;
-        }
-        
-        try{
+            // Remove \0's at the end
+            while ((len > 0) && (arr[off + len - 1] == 0x00)){
+                len--;
+            }
 
-        return new String(arr, off, len, "UTF-8");
-        } catch (Exception e) {
-            return null;
-        }
-	}        
+            try{
+
+            return new String(arr, off, len, "UTF-8");
+            } catch (Exception e) {
+                return null;
+            }
+	}          
         
 	public static String restoreCrLf(String s) {
         //StringBuffer result = new StringBuffer();
@@ -151,7 +155,13 @@ public class StringUtil {
     }        
     
     public static String removeCr(String s) {
-        //StringBuffer result = new StringBuffer();
+        if (s.indexOf('\r') < 0) {
+            return s;
+        }
+        if (-1 == s.indexOf('\n')) {
+            return s.replace('\r', '\n');
+        }
+        
         StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < s.length(); i++) {

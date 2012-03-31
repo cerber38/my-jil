@@ -23,6 +23,11 @@ public class Snac extends BasicData {
         modifyHeader = false;
     }
     
+    public Snac(int familyID){
+        putHeader(DataWork.putWord(familyID));
+        modifyHeader = false;
+    }    
+    
     public Snac(byte array[], int index){
         familyID = DataWork.getWord(array, index);
         index += 2;
@@ -47,6 +52,13 @@ public class Snac extends BasicData {
         addSnacData(new Data(tlv.getByteArray()));
     }
     
+    public void finishHeader(int subTypeID, int flags0, int flags1, int requestID){
+        putHeader(DataWork.putWord(subTypeID));
+        putHeader(DataWork.putByte(flags0));
+        putHeader(DataWork.putByte(flags1));
+        putHeader(DataWork.putDWord(requestID));       
+    }
+    
     public int getFamilyID(){
         return familyID;
     }
@@ -65,5 +77,5 @@ public class Snac extends BasicData {
     
     public int getRequestID(){
         return requestID;
-    } 
+    }
 }

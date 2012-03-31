@@ -16,6 +16,7 @@ import ru.oscar.icq.packet.parse.icbm.Snac__4_5;
 import ru.oscar.icq.packet.parse.icbm.Snac__4_7;
 import ru.oscar.icq.packet.parse.location.Snac__2_3;
 import ru.oscar.icq.packet.parse.privacy.Snac__9_3;
+import ru.oscar.icq.packet.parse.ssi.Snac__13_0E;
 import ru.oscar.icq.packet.parse.ssi.Snac__13_3;
 import ru.oscar.icq.packet.parse.ssi.Snac__13_6;
 
@@ -49,6 +50,7 @@ public class SnacBuilder extends ClassLoader{
         cmd.put("9_3", new Snac__9_3().getClass().getName());
         cmd.put("19_3", new Snac__13_3().getClass().getName());   
         cmd.put("19_6", new Snac__13_6().getClass().getName()); 
+        cmd.put("19_14", new Snac__13_0E().getClass().getName()); 
         // 1 10 rate limit
         // 4 12 ask
     }    

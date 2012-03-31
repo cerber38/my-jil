@@ -29,18 +29,18 @@ public class Snac__13_3 extends DefaultCommand{
             connect.sendPacket(new Snac__13_4());
                 System.out.println("Contakt list load");
         } else { // - работаем без кл
-        // set status
-        connect.sendPacket(new Snac__1_1E(connect.getOptionsConnect().getStatus(),
-                connect.getOptionsConnect().getStatusFlag(), 
-                connect.getOptionsConnect().getDirectConnect(),
-                connect.getOptionsConnect().getProtocolVersion()));   
-        // возможности и х-статус
-        connect.sendPacket(new Snac__2_4(connect.getOptionsConnect().getCapabilities(),
-                    connect.getOptionsConnect().getXstatus(), connect.getOptionsConnect().getStatus()));
-        // Мы готовы выйти в интернет
-        connect.sendPacket(new Snac__1_2());
-        
-        connect.successfulConnected();
+            // set status
+            connect.sendPacket(new Snac__1_1E(connect.getOptionsConnect().getStatus(),
+                    connect.getOptionsConnect().getStatusFlag(), 
+                    connect.getOptionsConnect().getDirectConnect(),
+                    connect.getOptionsConnect().getProtocolVersion()));   
+            // возможности и х-статус
+            connect.sendPacket(new Snac__2_4(connect.getOptionsConnect().getCapabilities(),
+                        connect.getOptionsConnect().getXstatus(), connect.getOptionsConnect().getStatus()));
+            // Мы готовы выйти в интернет
+            connect.sendPacket(new Snac__1_2());
+
+            connect.successfulConnected();
         }
     }
 }

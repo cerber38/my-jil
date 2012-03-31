@@ -21,6 +21,13 @@ public class Contact {
         this.groupID = groupID;
         this.auth = auth;       
     }
+    
+    public Contact(int id, String sn, String name, int groupID){
+        this.id = id;
+        this.sn = sn;
+        this.name = name;
+        this.groupID = groupID;       
+    }    
 
     /**
      * @return the id
