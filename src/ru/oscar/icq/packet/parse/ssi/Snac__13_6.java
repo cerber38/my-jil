@@ -45,6 +45,9 @@ public class Snac__13_6 extends DefaultCommand{
         }
         int index = 0;   
         byte[] data = f.getDataArray();
+        if (data.length < 3) {
+            return;
+        }
         // Version number of SSI protocol (currently 0x00)
         index++;
         // Number of items in this snac
@@ -52,11 +55,20 @@ public class Snac__13_6 extends DefaultCommand{
         index += 2;
         
         for (int i = 0; i < count; ++i) {
+            
+            if (data.length < index + 2) {
+                return;
+            }
             //Length of the item name
             int itemNameLen = DataWork.getWord(data, index);
             index += 2;
+            
+            if (data.length < index + itemNameLen + 8) {
+                return;
+            }            
+            
             //Item name string
-            String itemName = StringUtil.utf8ByteArrayToString(data, index, itemNameLen);                         
+            String itemName = StringUtil.utf8ByteArrayToString(data, index, itemNameLen);
             index += itemNameLen;
             
             //Group ID#
@@ -71,6 +83,10 @@ public class Snac__13_6 extends DefaultCommand{
             //Length of the additional data
             int len = DataWork.getWord(data, index);
             index += 2; 
+            
+            if (data.length < index + len) {
+                return;
+            }
             
             //Buddy record (uin)
             if (0x0000 == itemFlag) {
