@@ -11,15 +11,16 @@ import ru.oscar.icq.core.api.IcqAPI;
 import ru.oscar.icq.core.api.events.MessageEvent;
 import ru.oscar.icq.core.api.events.XStatusEvent;
 import ru.oscar.icq.core.api.listener.ListenerConnection;
+import ru.oscar.icq.core.api.listener.ListenerContactList;
 import ru.oscar.icq.core.api.listener.ListenerMessages;
 import ru.oscar.icq.core.api.listener.ListenerXStatus;
 import ru.oscar.icq.setting.Capabilities;
 import ru.oscar.icq.setting.OptionsConnecting;
 
-public class testOscar implements ListenerConnection, ListenerMessages, ListenerXStatus{
+public class testOscar implements ListenerConnection, ListenerMessages, ListenerXStatus, ListenerContactList{
     
     private String sn = "363499099";
-    private String password = "R8UYza2b";
+    private String password = "R8UYza2b";  
     private Connect c;
     private String title = "title";
     private String description = "description";
@@ -41,6 +42,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         c.putListenerConnection(this);
         c.putListenerMessages(this);
         c.putListenerXStatus(this);
+        c.putListenerContactList(this);
         c.connect();        
     }
     
@@ -195,6 +197,11 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
     
     public void changeXStatus(int xstatus, String title, String description){
         IcqAPI.changeXStatus(c, new XStatusConstants(xstatus, title, description));
+    }
+
+    public void isLoadedContactList() {
+        System.out.println("Contact list is loaded.");
+        System.out.println(c.getContactList().toString());
     }
 
 }

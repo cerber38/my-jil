@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import ru.oscar.icq.Cookies;
 import ru.oscar.icq.Flap;
 import ru.oscar.icq.constants.LoginErrorConstants;
+import ru.oscar.icq.contacts.ContactList;
 import ru.oscar.icq.core.api.listener.ListenerConnection;
+import ru.oscar.icq.core.api.listener.ListenerContactList;
 import ru.oscar.icq.core.api.listener.ListenerMessages;
 import ru.oscar.icq.core.api.listener.ListenerXStatus;
 import ru.oscar.icq.packet.send.Goodbye;
@@ -41,6 +43,9 @@ public class Connect {
     private ArrayList<ListenerConnection> listenersConnectArray = new ArrayList<ListenerConnection>(1);   
     private ArrayList<ListenerMessages> listenersMessagesArray = new ArrayList<ListenerMessages>(1);   
     private ArrayList<ListenerXStatus> listenersXStatusArray = new ArrayList<ListenerXStatus>(1); 
+    private ArrayList<ListenerContactList> listenersContactList = new ArrayList<ListenerContactList>(1); 
+    
+    private ContactList contactList;
     
     /**
      * Конструктор подключения.
@@ -89,12 +94,9 @@ public class Connect {
                     client.disconnect();
                     }catch (IOException ex) {
                         System.err.println("Send packet error: " + ex.getMessage());
-//                        ex.printStackTrace();
                     }finally {
                     if(authorized){
                         breakConnection(e.getMessage());
-//                        System.err.println("Send packet error: " + e.getMessage());
-//                        e.fillInStackTrace();
                         close();
                     }               
                 }
@@ -151,7 +153,18 @@ public class Connect {
             ListenerConnection l = getListenerConnection().get(i);
             l.successfulConnected();
         }        
-    }        
+    }
+    
+    /**
+     * Уведомляет слушателей о успешном загрузке контакт листа.
+     */
+    
+    public void isLoadedContactList(){
+        for (int i = 0; i < getListenerContactList().size(); i++) {
+            ListenerContactList l = getListenerContactList().get(i);
+            l.isLoadedContactList();
+        }        
+    }       
     
     /**
      * Закрываем соединение.
@@ -161,7 +174,6 @@ public class Connect {
             System.out.println("Close");     
     	try {            
             if (connected) { 
-//                sendPacket(new Goodbye());
                 client.disconnect();
                 cookies.clear();
             }
@@ -191,11 +203,15 @@ public class Connect {
             // подключаемся к boss серверу
             client = new Client(StringUtil.getAddress(BosServerAddress), StringUtil.getPort(BosServerAddress), recognizer, this);
             client.connect();
-            System.out.println("Connect BOSS server: " + BosServerAddress);            
+            System.out.println("Connect BOSS server: " + BosServerAddress);        
+            
+            if(options.isContactList()){
+                contactList = new ContactList(this);
+            }
+            
             }catch (IOException e) {
                 breakConnection(e.getMessage());
                 System.err.println("weLogger error: " + e.getMessage());
-                e.printStackTrace();
                 close();
             }        
     }
@@ -280,7 +296,27 @@ public class Connect {
     public void removeListenerXStatus(ListenerXStatus listenerXStatus) {
         int i = listenersXStatusArray.indexOf(listenerXStatus);
         if (i>=0) listenersXStatusArray.remove(i);
-    }     
+    }
+    
+    public void putListenerContactList(ListenerContactList listenerContactList){
+        listenersContactList.add(listenerContactList);
+    }
+    
+    public ArrayList<ListenerContactList> getListenerContactList(){
+        return listenersContactList;
+    }
+    
+    public void removeListenerContactList(ListenerContactList listenerContactList) {
+        int i = listenersContactList.indexOf(listenerContactList);
+        if (i>=0) listenersContactList.remove(i);
+    }    
+
+    /**
+     * @return the contactList
+     */
+    public ContactList getContactList() {
+        return contactList;
+    }
          
 
 }

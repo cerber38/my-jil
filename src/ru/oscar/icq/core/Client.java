@@ -158,10 +158,8 @@ public class Client implements Runnable {
             }
         }catch (IOException ex) {
             System.err.println("Client run()" + ex.getMessage());
-            ex.printStackTrace();
         }catch (InterruptedException ex) {
             System.err.println("Client run()" + ex.getMessage());
-            ex.printStackTrace();
         }           
     }
 
