@@ -38,7 +38,7 @@ public class SendPrivacyStatus extends Flap {
         snac.addSnacData(DataWork.putWord(0x0005));
         //Privacy Settings (0x00ca)
         Tlv tlv = new Tlv(0x00ca);
-        tlv.addTlvData(DataWork.putByte(privateStatus.getCode()));       
+        tlv.addTlvData(DataWork.putByte(privateStatus.getCode() == 0 ? privateStatus.getCode() : PrivacyStatusConstants.VISIBLE_ALL));       
         snac.addTlv(tlv);
         
         addSnac(snac);
