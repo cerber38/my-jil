@@ -10,9 +10,11 @@ import ru.oscar.icq.contacts.ContactList;
 import ru.oscar.icq.core.api.listener.ListenerConnection;
 import ru.oscar.icq.core.api.listener.ListenerContactList;
 import ru.oscar.icq.core.api.listener.ListenerMessages;
+import ru.oscar.icq.core.api.listener.ListenerMetaInfo;
 import ru.oscar.icq.core.api.listener.ListenerXStatus;
 import ru.oscar.icq.packet.send.Goodbye;
 import ru.oscar.icq.packet.send.KeepAlive;
+import ru.oscar.icq.packet.send.meta.RequestShortInfo;
 import ru.oscar.icq.setting.OptionsConnecting;
 import ru.oscar.icq.util.StringUtil;
 
@@ -43,7 +45,8 @@ public class Connect {
     private ArrayList<ListenerConnection> listenersConnectArray = new ArrayList<ListenerConnection>(1);   
     private ArrayList<ListenerMessages> listenersMessagesArray = new ArrayList<ListenerMessages>(1);   
     private ArrayList<ListenerXStatus> listenersXStatusArray = new ArrayList<ListenerXStatus>(1); 
-    private ArrayList<ListenerContactList> listenersContactList = new ArrayList<ListenerContactList>(1); 
+    private ArrayList<ListenerContactList> listenersContactList = new ArrayList<ListenerContactList>(1);
+    private ArrayList<ListenerMetaInfo> listenersMetaInfo = new ArrayList<ListenerMetaInfo>(1); 
     
     private ContactList contactList;
     
@@ -310,6 +313,19 @@ public class Connect {
         int i = listenersContactList.indexOf(listenerContactList);
         if (i>=0) listenersContactList.remove(i);
     }    
+    
+    public void putListenerMetaInfo(ListenerMetaInfo listenerMetaInfo){
+        listenersMetaInfo.add(listenerMetaInfo);
+    }
+    
+    public ArrayList<ListenerMetaInfo> getListenerMetaInfo(){
+        return listenersMetaInfo;
+    }
+    
+    public void removeListenerMetaInfo(ListenerMetaInfo listenerMetaInfo) {
+        int i = listenersMetaInfo.indexOf(listenerMetaInfo);
+        if (i>=0) listenersMetaInfo.remove(i);
+    }      
 
     /**
      * @return the contactList
@@ -317,6 +333,6 @@ public class Connect {
     public ContactList getContactList() {
         return contactList;
     }
-         
+        
 
 }

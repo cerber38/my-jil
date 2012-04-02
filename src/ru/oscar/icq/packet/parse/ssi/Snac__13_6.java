@@ -26,6 +26,7 @@ import ru.oscar.icq.util.StringUtil;
 public class Snac__13_6 extends DefaultCommand{   
     
     private int privacyStatusId;
+    private int maxContactID;
     
     private boolean isLoadContactList = false;
 
@@ -108,6 +109,10 @@ public class Snac__13_6 extends DefaultCommand{
                 Contact c = new Contact(itemID, itemName, nick, groupID, auth);
                 contacts.put(itemName, c);
                 
+                if(maxContactID <  itemID){
+                    maxContactID = itemID;
+                }
+                
                 len -= tlv.getTlvLength() + 4;
                 index += tlv.getTlvLength() + 4;
                 
@@ -138,7 +143,7 @@ public class Snac__13_6 extends DefaultCommand{
     }
         
     public void notify(Connect connect) {
-        connect.getContactList().putContacts(contacts, group);
+        connect.getContactList().putContacts(contacts, group, maxContactID);
         group.clear();
         contacts.clear();        
         if(privacyStatusId != 0){

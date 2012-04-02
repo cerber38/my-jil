@@ -1,10 +1,15 @@
 
 package ru.oscar.icq.contacts;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import ru.oscar.icq.core.Connect;
+import ru.oscar.icq.packet.send.meta.SearchByUin;
 import ru.oscar.icq.packet.send.ssi.Snac__13_11;
 import ru.oscar.icq.packet.send.ssi.Snac__13_12;
 import ru.oscar.icq.packet.send.ssi.addContact;
@@ -33,49 +38,81 @@ public class ContactList {
     /**
      * Получем набор груп и контактов, сохраняем их
      * @param contacts
-     * @param group 
+     * @param group
+     * @param maxContactID  
      */
            
     public void putContacts(Map<String, Contact> contacts,
-            Map<Integer, Group> group){
+            Map<Integer, Group> group, int maxContactID){
+        
         getGroups().putAll(group);
         getContacts().putAll(contacts);  
         
-        // Распределим контакты по группам
-        Iterator iterator  = contacts.keySet().iterator();
-        while (iterator.hasNext()) {
-            String sn = (String)iterator.next();
-            Contact c = getContacts().get(sn);
-            Group g = getGroups().get(c.getGroupID());
-            g.putContact(c);
-            if(c.getId() > maxContactID){
-                maxContactID = c.getId();
-            }
-        }
+        this.maxContactID = maxContactID;
         
     }   
     
     /**
      * Добавить контакт
      * @param sn
+     * @param name 
+     * @param groupID
+     * @param auth  
+     */
+    
+    public void addContact(String sn, String name, int groupID, boolean auth){     
+        maxContactID++;
+        Contact c = new Contact(maxContactID, sn, name, groupID, auth);
+        connect.sendPacket(new Snac__13_11());
+        connect.sendPacket(new addContact(c));
+        connect.sendPacket(new Snac__13_12());
+        getContacts().put(sn, c);
+        if(auth){
+            // authorization request
+        }
+    }
+    
+    /**
+     * Добавить контакт, если мы уверены что он существует
+     * @param sn
      * @param groupName 
      */
     
-    public void addContact(String sn, String groupName){
+    public void addContact(String sn, String groupName){   
+        Group g = getGroup(groupName);
         if(isContact(sn)){
+            System.out.println("Contact "+ sn +" has been added to your contact list.");
             return;
         }
         if(!isGroup(groupName)){
+            System.out.println("Group " + groupName + "does not exist.");
             return;
-        }       
-        Group g = getGroup(groupName);
+        }          
         maxContactID++;
         Contact c = new Contact(maxContactID, sn, sn, g.getId());
         connect.sendPacket(new Snac__13_11());
         connect.sendPacket(new addContact(c));
         connect.sendPacket(new Snac__13_12());
-        g.putContact(c);
-        getContacts().put(sn, c);
+        getContacts().put(sn, c);        
+    }    
+    
+    /**
+     * Необходимые проверки
+     * @param sn
+     * @param groupName 
+     */
+    
+    public void checkContact(String sn, String groupName){      
+        Group g = getGroup(groupName);
+        if(isContact(sn)){
+            System.out.println("Contact "+ sn +" has been added to your contact list.");
+            return;
+        }
+        if(!isGroup(groupName)){
+            System.out.println("Group " + groupName + "does not exist.");
+            return;
+        }          
+        connect.sendPacket(new SearchByUin(sn, connect.getSN(), g.getId()));
     }
     
     /**
@@ -85,16 +122,14 @@ public class ContactList {
     
     public void removeContact(String sn){
         if(!isContact(sn)){
+            System.out.println("Contact "+ sn +" is not in contact list.");
             return;
         }  
-        Contact c = getContacts().get(sn);
+        Contact c = getContact(sn);
         connect.sendPacket(new Snac__13_11());
         connect.sendPacket(new removeContact(c));
         connect.sendPacket(new Snac__13_12());        
         getContacts().remove(sn);
-        // Удалим из группы
-        Group g = getGroup(c.getGroupID());
-        g.removeContact(sn);
     }
 
     
@@ -107,6 +142,16 @@ public class ContactList {
     public Group getGroup(int id){
         return groups.get(id);
     }
+    
+    /**
+     * Получить контакт 
+     * @param sn
+     * @return 
+     */
+    
+    public Contact getContact(String sn){
+        return contacts.get(sn);
+    }      
     
     /**
      * Получим группу по названию
@@ -147,54 +192,55 @@ public class ContactList {
     public Map<Integer, Group> getGroups() {
         return groups;
     }
-
+    
     /**
      * Набор контактов
      * @return the contacts
      */
     public Map<String, Contact> getContacts() {
         return contacts;
-    }
+    }           
     
     /**
-     * Представи текстовый контакт лист
+     * Распределяем контакты по групам сортируя их по статусам
      * @return 
      */
     
-    public String toString(){
-        StringBuilder s = new StringBuilder();
-        s.append("My contact list:");
-        s.append("\n");
-        s.append("Number of contacts: ");
-        s.append(getContacts().size());
-        s.append("\n");
+    public List<Contact> sorterGroup(){
         
-        Iterator iterGroup  = getGroups().keySet().iterator();
-        while (iterGroup.hasNext()) {
-            int id = (Integer)iterGroup.next();
-            Group g = getGroups().get(id);
-            s.append("Group: ");  
-            s.append(g.getName()); 
-            s.append("\n");
-            s.append("Group id: "); 
-            s.append(g.getId());             
-            s.append("\n");  
-            s.append("Contacts:"); 
-            s.append("\n");  
-            Iterator iterContact  = getGroups().get(id).getContacts().keySet().iterator();
-            while (iterContact.hasNext()) {
-                String sn = (String)iterContact.next();
-                Contact c = getContacts().get(sn);
-                s.append(c.getSn()); 
-                s.append(" ");
-                s.append(c.getName()); 
-                s.append(" ");
-                s.append(c.isAuth()); 
-                s.append("\n");  
-            } 
-            s.append("\n");  
-        }  
-        return s.toString();
+        List<Contact> list = new ArrayList<Contact>(contacts.values());
+        
+        Collections.sort(list, new Comparator<Contact> () {
+        
+            @Override
+            public int compare(Contact c1, Contact c2) {
+                int k = c1.getGroupID() - c2.getGroupID();
+                return k == 0 ? c1.getStatus().getCode() - c2.getStatus().getCode() : k;
+            }
+        });         
+        
+        return list;
+    }
+    
+    /**
+     * Сортируем контакты по статусам
+     * @return 
+     */
+    
+    public List<Contact> sorterStatus(){
+        
+        List<Contact> list = new ArrayList<Contact>(contacts.values());
+        
+        Collections.sort(list, new Comparator<Contact> () {
+        
+            @Override
+            public int compare(Contact c1, Contact c2) {
+                int k = c1.getStatus().getCode() - c2.getStatus().getCode();
+                return k == 0 ? c1.getId() - c2.getId() : k;
+            }
+        });         
+        
+        return list;
     }    
     
-}
+    }

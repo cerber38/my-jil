@@ -23,6 +23,14 @@ public class Snac extends BasicData {
         modifyHeader = false;
     }
     
+    public Snac(int familyID, int subTypeID, int flags0, int flags1){
+        putHeader(DataWork.putWord(familyID));
+        putHeader(DataWork.putWord(subTypeID));
+        putHeader(DataWork.putByte(flags0));
+        putHeader(DataWork.putByte(flags1));
+        modifyHeader = false;
+    }    
+    
     public Snac(int familyID){
         putHeader(DataWork.putWord(familyID));
         modifyHeader = false;
@@ -58,6 +66,10 @@ public class Snac extends BasicData {
         putHeader(DataWork.putByte(flags1));
         putHeader(DataWork.putDWord(requestID));       
     }
+    
+    public void finishHeader(int requestID){
+        putHeader(DataWork.putDWord(requestID));       
+    }    
     
     public int getFamilyID(){
         return familyID;

@@ -13,6 +13,8 @@ import ru.oscar.icq.packet.send.icbm.SendMessageChannel2;
 import ru.oscar.icq.packet.send.icbm.SendMessageChannel4;
 import ru.oscar.icq.packet.send.icbm.XStatusRequest;
 import ru.oscar.icq.packet.send.location.Snac__2_4;
+import ru.oscar.icq.packet.send.meta.RequestShortInfo;
+import ru.oscar.icq.packet.send.meta.SearchByUin;
 import ru.oscar.icq.packet.send.ssi.SendPrivacyStatus;
 
 /**
@@ -111,13 +113,27 @@ public class IcqAPI {
     /**
      * Изменить приватный статус
      * @param connect
-     * @param xstatus 
+     * @param privacyStatus 
      */
     
     public static void changePrivacyStatus(Connect connect, PrivacyStatusConstants privacyStatus){
         connect.getOptionsConnect().setPrivacyStatus(privacyStatus);
         connect.sendPacket(new SendPrivacyStatus(privacyStatus,
                     connect.getOptionsConnect().getPrivacyStatusId()));    
+    }   
+    
+    /**
+     * Запрос кароткой информации
+     * @param connect
+     * @param userId 
+     */
+    
+    public static void requestShortUserInfo(Connect connect, String userId) {
+        connect.sendPacket(new RequestShortInfo(userId, connect.getSN()));
     }    
+    
+    public static void requestSearchByUin(Connect connect, String userId) {
+        connect.sendPacket(new SearchByUin(userId, connect.getSN()));
+    }       
     
 }

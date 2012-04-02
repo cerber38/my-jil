@@ -38,5 +38,9 @@ public class MotdConstants {
         }
         return "Unknown mtd message. (" + code + ")";
     }
+    
+    public int getCode(){
+        return code;
+    }
 
 }

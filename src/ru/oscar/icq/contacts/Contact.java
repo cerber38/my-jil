@@ -1,6 +1,9 @@
 
 package ru.oscar.icq.contacts;
 
+import ru.oscar.icq.constants.StatusConstants;
+import ru.oscar.icq.constants.XStatusConstants;
+
 /**
  * @author Kornackiy Alexsandr
  */
@@ -11,6 +14,8 @@ public class Contact {
     private String name;
     private int groupID;
     private boolean auth;
+    private StatusConstants status;
+    private XStatusConstants xstatus;
     
     private String sn;
     
@@ -19,9 +24,11 @@ public class Contact {
         this.sn = sn;
         this.name = name;
         this.groupID = groupID;
-        this.auth = auth;       
-    }
-    
+        this.auth = auth;  
+        status = new StatusConstants(StatusConstants.STATUS_OFFLINE);
+        xstatus = new XStatusConstants(XStatusConstants.NONE);
+    }    
+
     public Contact(int id, String sn, String name, int groupID){
         this.id = id;
         this.sn = sn;
@@ -83,6 +90,34 @@ public class Contact {
      */
     public String getSn() {
         return sn;
+    }
+
+    /**
+     * @return the status
+     */
+    public StatusConstants getStatus() {
+        return status;
+    }
+
+    /**
+     * @param status the status to set
+     */
+    public void setStatus(StatusConstants status) {
+        this.status = status;
+    }
+
+    /**
+     * @return the xstatus
+     */
+    public XStatusConstants getXstatus() {
+        return xstatus;
+    }
+
+    /**
+     * @param xstatus the xstatus to set
+     */
+    public void setXstatus(XStatusConstants xstatus) {
+        this.xstatus = xstatus;
     }
     
 }
