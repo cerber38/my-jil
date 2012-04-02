@@ -146,9 +146,7 @@ public class Snac__13_6 extends DefaultCommand{
         connect.getContactList().putContacts(contacts, group, maxContactID);
         group.clear();
         contacts.clear();        
-        if(privacyStatusId != 0){
-            connect.getOptionsConnect().setPrivacyStatusId(privacyStatusId);
-        }
+        connect.getOptionsConnect().setPrivacyStatusId(privacyStatusId);
         if(isLoadContactList){
             // контакт лист загружен
             connect.isLoadedContactList();
