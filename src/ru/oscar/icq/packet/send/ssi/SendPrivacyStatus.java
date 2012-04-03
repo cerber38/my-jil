@@ -6,6 +6,7 @@ import ru.oscar.icq.Flap;
 import ru.oscar.icq.Snac;
 import ru.oscar.icq.Tlv;
 import ru.oscar.icq.constants.PrivacyStatusConstants;
+import ru.oscar.icq.util.Util;
 
 /**
  * snac (13, 9)
@@ -17,13 +18,17 @@ public class SendPrivacyStatus extends Flap {
     public SendPrivacyStatus(PrivacyStatusConstants privateStatus, int itemID){
         super(CHANNEL2);
         
+        Snac snac;
+        
         if(itemID == 0){
-            return;
+            snac = new Snac(0x13, 0x08, 0x00, 0x00, 0x00);
+            itemID = Util.nextRandInt() % 0x6FFF + 0x1000;
+        } else {
+            snac = new Snac(0x13, 0x09, 0x00, 0x00, 0x00);
         }
         
         System.out.println("Send privacy setting: status:" + privateStatus.toString() + "\nItemID: " + itemID);
-        
-        Snac snac = new Snac(0x13, 0x09, 0x00, 0x00, 0x09);
+
         //Length of the item name
         snac.addSnacData(DataWork.putWord(0x0000));
         //Item name string
@@ -38,7 +43,7 @@ public class SendPrivacyStatus extends Flap {
         snac.addSnacData(DataWork.putWord(0x0005));
         //Privacy Settings (0x00ca)
         Tlv tlv = new Tlv(0x00ca);
-        tlv.addTlvData(DataWork.putByte(privateStatus.getCode() == 0 ? privateStatus.getCode() : PrivacyStatusConstants.VISIBLE_ALL));       
+        tlv.addTlvData(DataWork.putByte(privateStatus.getCode()));       
         snac.addTlv(tlv);
         
         addSnac(snac);

@@ -14,6 +14,7 @@ import ru.oscar.icq.packet.send.generic.Snac__1_1E;
 import ru.oscar.icq.packet.send.generic.Snac__1_2;
 import ru.oscar.icq.packet.send.location.Snac__2_4;
 import ru.oscar.icq.packet.send.ssi.SendPrivacyStatus;
+import ru.oscar.icq.util.Dumper;
 import ru.oscar.icq.util.StringUtil;
 
 /**
@@ -46,6 +47,7 @@ public class Snac__13_6 extends DefaultCommand{
         }
         int index = 0;   
         byte[] data = f.getDataArray();
+        
         if (data.length < 3) {
             return;
         }
@@ -128,7 +130,6 @@ public class Snac__13_6 extends DefaultCommand{
             } else if (0x0004 == itemFlag) {
                 
                 Tlv tlv = new Tlv(data, index);
-                
                 if (0x00CA == tlv.getTlvType()) {
                     privacyStatusId = itemID;
                 }   
@@ -145,10 +146,12 @@ public class Snac__13_6 extends DefaultCommand{
     public void notify(Connect connect) {
         connect.getContactList().putContacts(contacts, group, maxContactID);
         group.clear();
-        contacts.clear();        
-        connect.getOptionsConnect().setPrivacyStatusId(privacyStatusId);
+        contacts.clear();
+        if(privacyStatusId != 0){
+            connect.getOptionsConnect().setPrivacyStatusId(privacyStatusId);
+        }
         if(isLoadContactList){
-            // контакт лист загружен
+            // контакт лист загружен          
             connect.isLoadedContactList();
             // send privacy status
             connect.sendPacket(new SendPrivacyStatus(connect.getOptionsConnect().getPrivacyStatus(),

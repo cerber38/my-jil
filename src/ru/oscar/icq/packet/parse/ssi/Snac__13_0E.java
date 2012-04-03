@@ -28,9 +28,9 @@ public class Snac__13_0E extends DefaultCommand{
         @Override
     public void exec(Flap f) { 
         int index = 0;      
-        if(f.getSnac().getRequestID() != 0x00000009){
-            index = 8;
-        }        
+//        if(f.getSnac().getRequestID() != 0x00000009){
+//            index = 8;
+//        }        
         byte[] data = f.getDataArray();
         
         // result code

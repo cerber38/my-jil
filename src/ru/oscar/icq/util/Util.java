@@ -1,15 +1,20 @@
 
 package ru.oscar.icq.util;
 
+import java.util.Random;
+
 /**
  * @author Kornackiy Alexsandr
  */
 
 public class Util {
     
+    private static Random rand = new Random(System.currentTimeMillis());
     
-    public static int getRandomItem(){        
-        return (int)(Short.MAX_VALUE * Math.random());
-    } 
+    public static int nextRandInt() {
+        return Math.abs(Math.max(Integer.MIN_VALUE + 1, rand.nextInt()));
+    }    
+    
+    
 
 }
