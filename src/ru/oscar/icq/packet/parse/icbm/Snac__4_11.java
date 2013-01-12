@@ -110,7 +110,21 @@ public class Snac__4_11 extends DefaultCommand{
         }        
     }  
     
+    
     private void getChannel_2(int index, byte[] data){  
+        // Todo: что это за пакет?
+//            2A 02 5E 67  00 22 00 04  *.^g."..
+//            00 0B 00 00  80 86 F6 48  ....���
+//            00 00 00 00  00 00 00 00  ........
+//            00 02 07 31  37 36 35 35  ...17655
+//            39 34 00 03  00 02 00 01  94......
+        // пока так
+        if(data.length - index <= 8){
+            return;
+        }      
+        
+        
+        
         //length of following data
         index += 2;
 

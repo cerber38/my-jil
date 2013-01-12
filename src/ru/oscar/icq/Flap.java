@@ -2,6 +2,7 @@
 package ru.oscar.icq;
 
 import ru.oscar.icq.constants.ChannelsConstants;
+import ru.oscar.icq.constants.SsiConstants;
 import ru.oscar.icq.constants.TlvConstants;
 
 /**
@@ -9,7 +10,7 @@ import ru.oscar.icq.constants.TlvConstants;
  * @author Kornackiy Alexsandr
  */
 
-public class Flap extends BasicData implements ChannelsConstants, TlvConstants{
+public class Flap extends BasicData implements ChannelsConstants, TlvConstants, SsiConstants{
     
     private final int startMarker = 0x2a;    
     

@@ -122,7 +122,8 @@ public class Capabilities {
         System.arraycopy(ICQ_DIRECT_CONNECT_CAPS, 0, data, 16*3, 16);
         System.arraycopy(UTF8_SUPPORT_CAPS, 0, data, 16*4, 16);
         System.arraycopy(ICQ_XTRAZ_CAPS, 0, data, 16*5, 16);
-        System.arraycopy(CAP_JIL, 0, data, 16*6, 16);
+        System.arraycopy(AIM_LIST_SHORT_CAPS, 0, data, 16*6, 16);
+        //System.arraycopy(CAP_JIL, 0, data, 16*6, 16);
         return data;
     }
     

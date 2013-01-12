@@ -6,18 +6,20 @@ import ru.oscar.icq.Flap;
 import ru.oscar.icq.Snac;
 import ru.oscar.icq.Tlv;
 import ru.oscar.icq.contacts.Contact;
+import ru.oscar.icq.contacts.Group;
 import ru.oscar.icq.util.StringUtil;
 
 /**
- * Добавить контакт
+ * Добавить данные на сервер
+ * snac (13, 8)
  * @author Kornackiy Alexsandr
  */
 
-public class addContact extends Flap {
+public class Snac__13_8 extends Flap {
 
-    public addContact(Contact c){
+    public Snac__13_8(Contact c){
         super(CHANNEL2);
-        
+               
         Snac snac = new Snac(0x13, 0x08, 0x00, 0x00, 0x00);
         
         //Length of the item name
@@ -29,7 +31,7 @@ public class addContact extends Flap {
         //Item ID#
         snac.addSnacData(DataWork.putWord(c.getId()));
         //Type of item flag (see list bellow)
-        snac.addSnacData(DataWork.putWord(0x0000));
+        snac.addSnacData(DataWork.putWord(TYPE_CONTACT));
         
         byte[] nick = StringUtil.bytesOfStringUTF8(c.getName());
         
@@ -39,9 +41,31 @@ public class addContact extends Flap {
         tlv.addTlvData(DataWork.putArray(nick));
         snac.addTlv(tlv);	
 
-        // unknown		
-        snac.addTlv(new Tlv(0x0066));        
+        if(c.isAuth()){	
+            snac.addTlv(new Tlv(0x0066));     
+        }       
              
+        addSnac(snac);
+    }
+    
+    public Snac__13_8(Group g){
+        super(CHANNEL2);
+        
+        Snac snac = new Snac(0x13, 0x08, 0x00, 0x00, 0x00);
+        
+        //Length of the item name
+        snac.addSnacData(DataWork.putWord(g.getName().length()));
+        //Item name string
+        snac.addSnacData(DataWork.putArray(StringUtil.bytesOfString(g.getName())));      
+        //Group ID#
+        snac.addSnacData(DataWork.putWord(g.getIdGroup()));
+        //Item ID#
+        snac.addSnacData(DataWork.putWord(g.getItemID()));  
+        //Type of item flag (see list bellow)
+        snac.addSnacData(DataWork.putWord(TYPE_GROUP));  
+        
+        snac.addSnacData(DataWork.putWord(0x0000)); 
+        
         addSnac(snac);
     }
 }

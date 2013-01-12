@@ -13,9 +13,9 @@ import ru.oscar.icq.util.Util;
  * Установим приватный статус
  * @author Kornackiy Alexsandr
  */
-public class SendPrivacyStatus extends Flap {
+public class PrivacyItem extends Flap {
 
-    public SendPrivacyStatus(PrivacyStatusConstants privateStatus, int itemID){
+    public PrivacyItem(PrivacyStatusConstants privateStatus, int itemID){
         super(CHANNEL2);
         
         Snac snac;

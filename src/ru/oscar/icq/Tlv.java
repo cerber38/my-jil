@@ -21,7 +21,7 @@ public class Tlv extends BasicData {
     }
     
     public Tlv(int tlvType, Data data) {
-        this(tlvType);
+        this(tlvType);      
         putData(data);
     }
     
@@ -30,8 +30,8 @@ public class Tlv extends BasicData {
     }
     
     public Tlv(int tlvType, int value) {
-        this(tlvType);
-        putData(DataWork.putWord(value));
+        this(tlvType);       
+        putData(DataWork.putWord(value));      
     }
     
     public Tlv(int tlvType, int len, int value) {

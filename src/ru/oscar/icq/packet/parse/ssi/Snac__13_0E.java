@@ -26,15 +26,9 @@ public class Snac__13_0E extends DefaultCommand{
     }
     
         @Override
-    public void exec(Flap f) { 
-        int index = 0;      
-//        if(f.getSnac().getRequestID() != 0x00000009){
-//            index = 8;
-//        }        
-        byte[] data = f.getDataArray();
-        
+    public void exec(Flap f) {            
         // result code
-        results = new SsiModifyingAckConstants(DataWork.getWord(data, index));
+        results = new SsiModifyingAckConstants(DataWork.getWord(f.getDataArray(), f.getDataArray().length - 2));
     }  
         
     public void notify(Connect connect) { 

@@ -1,10 +1,6 @@
 
 package ru.oscar.icq.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import ru.oscar.icq.DataWork;
-
 /**
  * @author Kornackiy Alexsandr
  */
@@ -201,5 +197,9 @@ public class StringUtil {
 		int dbpt = s.indexOf(':');
 		return Integer.parseInt(s.substring(dbpt + 1, s.length()));
 	}
+        
+        public static boolean isEmpty(String string) {
+            return string == null || string.length() < 1;
+        }        
     
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import ru.oscar.icq.DataWork;
 import ru.oscar.icq.Flap;
 import ru.oscar.icq.Tlv;
+import ru.oscar.icq.constants.SsiConstants;
 import ru.oscar.icq.contacts.Contact;
 import ru.oscar.icq.contacts.Group;
 import ru.oscar.icq.core.Connect;
@@ -13,7 +14,7 @@ import ru.oscar.icq.core.cmd.DefaultCommand;
 import ru.oscar.icq.packet.send.generic.Snac__1_1E;
 import ru.oscar.icq.packet.send.generic.Snac__1_2;
 import ru.oscar.icq.packet.send.location.Snac__2_4;
-import ru.oscar.icq.packet.send.ssi.SendPrivacyStatus;
+import ru.oscar.icq.packet.send.ssi.PrivacyItem;
 import ru.oscar.icq.util.Dumper;
 import ru.oscar.icq.util.StringUtil;
 
@@ -92,7 +93,7 @@ public class Snac__13_6 extends DefaultCommand{
             }
             
             //Buddy record (uin)
-            if (0x0000 == itemFlag) {
+            if (SsiConstants.TYPE_CONTACT == itemFlag) {
                 
             String nick = itemName;
 
@@ -120,14 +121,14 @@ public class Snac__13_6 extends DefaultCommand{
                 
                 }
             // Group record
-            } else if (0x0001 == itemFlag) {                              
+            } else if (SsiConstants.TYPE_GROUP == itemFlag) {                              
                 
                 index += len;
                 
-                group.put(groupID, new Group(groupID, itemName));
+                group.put(groupID, new Group(groupID, itemID, itemName));
                 
             //Permit/deny settings or/and bitmask of the AIM classes
-            } else if (0x0004 == itemFlag) {
+            } else if (SsiConstants.TYPE_VISIBILITY == itemFlag) {
                 
                 Tlv tlv = new Tlv(data, index);
                 if (0x00CA == tlv.getTlvType()) {
@@ -154,7 +155,7 @@ public class Snac__13_6 extends DefaultCommand{
             // контакт лист загружен          
             connect.isLoadedContactList();
             // send privacy status
-            connect.sendPacket(new SendPrivacyStatus(connect.getOptionsConnect().getPrivacyStatus(),
+            connect.sendPacket(new PrivacyItem(connect.getOptionsConnect().getPrivacyStatus(),
                     connect.getOptionsConnect().getPrivacyStatusId()));
             // send status
             connect.sendPacket(new Snac__1_1E(connect.getOptionsConnect().getStatus(),

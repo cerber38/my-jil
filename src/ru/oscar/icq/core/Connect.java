@@ -7,6 +7,8 @@ import ru.oscar.icq.Cookies;
 import ru.oscar.icq.Flap;
 import ru.oscar.icq.constants.LoginErrorConstants;
 import ru.oscar.icq.contacts.ContactList;
+import ru.oscar.icq.core.Client;
+import ru.oscar.icq.core.PacketRecognizer;
 import ru.oscar.icq.core.api.listener.ListenerConnection;
 import ru.oscar.icq.core.api.listener.ListenerContactList;
 import ru.oscar.icq.core.api.listener.ListenerMessages;

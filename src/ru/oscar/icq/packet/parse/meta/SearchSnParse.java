@@ -43,7 +43,7 @@ public class SearchSnParse extends BaseMetaInfoParser {
     }
 
     public void parse(byte[] data, int index, int request) {
-        isContactCheck = (request != 0x00000000); 
+        isContactCheck = (request != -1); 
         
         if(isContactCheck){
             groupID = request;
@@ -69,7 +69,7 @@ public class SearchSnParse extends BaseMetaInfoParser {
         index += 2;        
 
         // Nickname
-        nickName = StringUtil.stringOfBytes(data, index, nickNameLen - 1);
+        nickName = StringUtil.utf8ByteArrayToString(data, index, nickNameLen - 1);
         index += nickNameLen;
         
         // First Name lenght
@@ -77,7 +77,7 @@ public class SearchSnParse extends BaseMetaInfoParser {
         index += 2;
 
         // First Name
-        firstName = StringUtil.stringOfBytes(data, index, firstNameLen - 1);
+        firstName = StringUtil.utf8ByteArrayToString(data, index, firstNameLen - 1);
         index += firstNameLen;  
         
         // Last Name lenght
@@ -85,7 +85,7 @@ public class SearchSnParse extends BaseMetaInfoParser {
         index += 2;
 
         // Last Name
-        lastName = StringUtil.stringOfBytes(data, index, lastNameLen - 1);
+        lastName = StringUtil.utf8ByteArrayToString(data, index, lastNameLen - 1);
         index += lastNameLen; 
 
         // Email lenght

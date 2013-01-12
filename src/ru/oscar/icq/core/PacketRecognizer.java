@@ -58,7 +58,7 @@ public class PacketRecognizer {
         int familyID = flap.getSnac().getFamilyID();
         int subType = flap.getSnac().getSubTypeID();
         
-//        Dumper.println("Incoming Packet: (" + familyID + "," + subType + ")", array, true, 8, 16);
+        Dumper.println("Incoming Packet: (" + familyID + "," + subType + ")", array, true, 8, 16);
 
         try{            
             Command c = commands.getCommand(familyID + "_" + subType);

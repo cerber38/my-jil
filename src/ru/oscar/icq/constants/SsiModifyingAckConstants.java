@@ -62,7 +62,7 @@ public String toString() {
         case TOTAL_TIME_ELAPSED:
             return "Total time elapsed.";             
     }
-    return "Unknown error code. (" + code + ")";
+    return "Unknown error code.";
 }
 
     /**

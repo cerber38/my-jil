@@ -30,8 +30,10 @@ public abstract class BasicData {
     }
     
     public void putData(Data data){
-        dataPacket.add(data);      
-        dataLength += data.getDataLength();    
+        int len = data == null ? 0 : data.getDataLength();    
+        dataLength += len;
+        if(len > 0)
+            dataPacket.add(data); 
     }
     
     public byte[] getByteArray(){

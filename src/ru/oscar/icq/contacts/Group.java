@@ -7,33 +7,38 @@ package ru.oscar.icq.contacts;
 
 public class Group {
     
-    private int id;
+    private int idGroup;
+    private int itemID;
     private String name;
     
-    public Group(int id, String name){
-        this.id = id;
-        this.name = id == 0 ? "Master Group" : name;
+    public Group(int idGroup, int itemID, String name){
+        this.idGroup = idGroup;
+        this.itemID = itemID;
+        this.name = name;
     }
     
-    public Group(int id){
-        this.id = id;       
+    public Group(int idGroup){
+        this.idGroup = idGroup;       
     }    
     
     public boolean isMaster() {
-        return id == 0;
+        return idGroup == 0;
     }    
 
     /**
      * @return the id
      */
-    public int getId() {
-        return id;
+    public int getIdGroup() {
+        return idGroup;
     }
 
     /**
      * @return the name
      */
     public String getName() {
+        if(idGroup == 0){
+            return "Master Group";
+        }
         return name;
     }
 
@@ -42,6 +47,13 @@ public class Group {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the itemID
+     */
+    public int getItemID() {
+        return itemID;
     }
     
 }
