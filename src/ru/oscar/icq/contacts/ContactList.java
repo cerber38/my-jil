@@ -8,12 +8,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import ru.oscar.icq.constants.SsiConstants;
 import ru.oscar.icq.core.Connect;
 import ru.oscar.icq.packet.send.meta.SearchByUin;
-import ru.oscar.icq.packet.send.ssi.Snac__13_11;
-import ru.oscar.icq.packet.send.ssi.Snac__13_12;
-import ru.oscar.icq.packet.send.ssi.addContact;
-import ru.oscar.icq.packet.send.ssi.removeContact;
+import ru.oscar.icq.packet.send.ssi.SsiService;
+import ru.oscar.icq.util.StringUtil;
 
 /**
  * Класс работает с контакт листом
@@ -63,57 +62,67 @@ public class ContactList {
     public void addContact(String sn, String name, int groupID, boolean auth){     
         maxContactID++;
         Contact c = new Contact(maxContactID, sn, name, groupID, auth);
-        connect.sendPacket(new Snac__13_11());
-        connect.sendPacket(new addContact(c));
-        connect.sendPacket(new Snac__13_12());
+        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_ADD);
+        ssi.init();        
         getContacts().put(sn, c);
         if(auth){
             // authorization request
         }
     }
-    
-    /**
-     * Добавить контакт, если мы уверены что он существует
-     * @param sn
-     * @param groupName 
-     */
-    
-    public void addContact(String sn, String groupName){   
-        Group g = getGroup(groupName);
+
+    private void addContact(String sn, int groupID){   
         if(isContact(sn)){
-            System.out.println("Contact "+ sn +" has been added to your contact list.");
+            System.err.println("Contact "+ sn +" has been added to your contact list.");
             return;
-        }
-        if(!isGroup(groupName)){
-            System.out.println("Group " + groupName + "does not exist.");
-            return;
-        }          
+        }      
         maxContactID++;
-        Contact c = new Contact(maxContactID, sn, sn, g.getId());
-        connect.sendPacket(new Snac__13_11());
-        connect.sendPacket(new addContact(c));
-        connect.sendPacket(new Snac__13_12());
+        Contact c = new Contact(maxContactID, sn, sn, groupID);
+        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_ADD);
+        ssi.init();
         getContacts().put(sn, c);        
+    }   
+    
+    public void addContact(String sn, String groupName){          
+        if(getGroup(groupName) == null){
+            addContact(sn, 0);
+        } else {
+            addContact(sn, getGroup(groupName).getIdGroup());
+        }       
+    }
+
+    public void addContact(String sn){   
+        if(isContact(sn)){
+            System.err.println("Contact "+ sn +" has been added to your contact list.");
+            return;
+        }  
+        maxContactID++;
+        Contact c = new Contact(maxContactID, sn, sn, 0);
+        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_ADD);
+        ssi.init();
+        getContacts().put(sn, c);          
     }    
     
     /**
-     * Необходимые проверки
+     * Проверим контакт перед добавлением
      * @param sn
-     * @param groupName 
+     * @param groupID  
      */
     
-    public void checkContact(String sn, String groupName){      
-        Group g = getGroup(groupName);
+    public void checkContact(String sn, int groupID){      
         if(isContact(sn)){
-            System.out.println("Contact "+ sn +" has been added to your contact list.");
+            System.err.println("Contact "+ sn +" has been added to your contact list.");
             return;
-        }
-        if(!isGroup(groupName)){
-            System.out.println("Group " + groupName + "does not exist.");
-            return;
-        }          
-        connect.sendPacket(new SearchByUin(sn, connect.getSN(), g.getId()));
+        }      
+        connect.sendPacket(new SearchByUin(sn, connect.getSN(), groupID));
     }
+    
+    public void checkContact(String sn, String groupName){ 
+        if(getGroup(groupName) == null){
+            checkContact(sn, 0);
+        } else {
+            checkContact(sn, getGroup(groupName).getIdGroup());
+        }
+    }    
     
     /**
      * Удалить контакт
@@ -122,17 +131,33 @@ public class ContactList {
     
     public void removeContact(String sn){
         if(!isContact(sn)){
-            System.out.println("Contact "+ sn +" is not in contact list.");
+            System.err.println("Contact "+ sn +" is not in contact list.");
             return;
         }  
-        Contact c = getContact(sn);
-        connect.sendPacket(new Snac__13_11());
-        connect.sendPacket(new removeContact(c));
-        connect.sendPacket(new Snac__13_12());        
+        Contact c = getContact(sn);      
+        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_REMOVE);
+        ssi.init();
         getContacts().remove(sn);
     }
-
     
+    /**
+     * Переименовать контакт
+     * @param sn
+     * @param newName 
+     */
+    
+    public void renameContact(String sn, String newName){
+        Contact c = getContact(sn);        
+//        connect.sendPacket(new SetNameContact(c));
+        if(StringUtil.isEmpty(newName)){
+            System.err.println("Incorrect contact nick.");
+            return;            
+        }
+        c.setName(newName);
+        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_UPDATE);
+        ssi.init();
+    }
+   
     /**
      * Получим группу по id
      * @param id
@@ -181,8 +206,8 @@ public class ContactList {
      * @return 
      */
     
-    public boolean isGroup(String groupName){
-        return getGroup(groupName) != null;
+    public boolean isGroup(int groupID){
+        return getGroup(groupID) != null;
     }
 
     /**
@@ -241,6 +266,6 @@ public class ContactList {
         });         
         
         return list;
-    }    
+    }
     
     }

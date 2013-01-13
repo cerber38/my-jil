@@ -178,7 +178,7 @@ public class Client implements Runnable {
      */
     
     public void sendPacket(byte[] packet) throws IOException {
-//        Dumper.println("Send Packet:", packet, true, 8, 16);   
+        Dumper.println("Send Packet:", packet, true, 8, 16);   
         timeSupport = System.currentTimeMillis();
         out.write(packet);
         out.flush();
