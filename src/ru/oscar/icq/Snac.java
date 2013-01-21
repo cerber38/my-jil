@@ -15,6 +15,11 @@ public class Snac extends BasicData {
     private int requestID;
     
     public Snac(int familyID, int subTypeID, int flags0, int flags1, int requestID){
+        this.familyID = familyID;
+        this.subTypeID = subTypeID;
+        this.flags0 = flags0;
+        this.flags1 = flags1;
+        this.requestID = requestID;       
         putHeader(DataWork.putWord(familyID));
         putHeader(DataWork.putWord(subTypeID));
         putHeader(DataWork.putByte(flags0));
@@ -24,6 +29,10 @@ public class Snac extends BasicData {
     }
     
     public Snac(int familyID, int subTypeID, int flags0, int flags1){
+        this.familyID = familyID;
+        this.subTypeID = subTypeID;
+        this.flags0 = flags0;
+        this.flags1 = flags1;       
         putHeader(DataWork.putWord(familyID));
         putHeader(DataWork.putWord(subTypeID));
         putHeader(DataWork.putByte(flags0));
@@ -32,6 +41,7 @@ public class Snac extends BasicData {
     }    
     
     public Snac(int familyID){
+        this.familyID = familyID;
         putHeader(DataWork.putWord(familyID));
         modifyHeader = false;
     }    
@@ -90,4 +100,9 @@ public class Snac extends BasicData {
     public int getRequestID(){
         return requestID;
     }
+    
+    public int getError(){
+        return DataWork.getWord(getDataArray(), 2);
+    }
+        
 }

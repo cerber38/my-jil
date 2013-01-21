@@ -7,8 +7,6 @@ import ru.oscar.icq.Cookies;
 import ru.oscar.icq.Flap;
 import ru.oscar.icq.constants.LoginErrorConstants;
 import ru.oscar.icq.contacts.ContactList;
-import ru.oscar.icq.core.Client;
-import ru.oscar.icq.core.PacketRecognizer;
 import ru.oscar.icq.core.api.listener.ListenerConnection;
 import ru.oscar.icq.core.api.listener.ListenerContactList;
 import ru.oscar.icq.core.api.listener.ListenerMessages;
@@ -16,8 +14,8 @@ import ru.oscar.icq.core.api.listener.ListenerMetaInfo;
 import ru.oscar.icq.core.api.listener.ListenerXStatus;
 import ru.oscar.icq.packet.send.Goodbye;
 import ru.oscar.icq.packet.send.KeepAlive;
-import ru.oscar.icq.packet.send.meta.RequestShortInfo;
 import ru.oscar.icq.setting.OptionsConnecting;
+import ru.oscar.icq.util.Dumper;
 import ru.oscar.icq.util.StringUtil;
 
 
@@ -93,6 +91,15 @@ public class Connect {
         f.setSeq(sequence);   
         try{
             client.sendPacket(f.getByteArray());
+            if(options.isDebug()){
+                if(f.getSnac() != null ){
+                    System.out.println("Send packet: (" + f.getSnac().getFamilyID() + "," + f.getSnac().getSubTypeID() + ")\n"
+                            + "Dump:\n" + Dumper.dump(f.getByteArray(), true));
+                } else {
+                    System.out.println("Send packet: \n"
+                            + "Dump:\n" + Dumper.dump(f.getByteArray(), true));
+                }
+            }            
         }catch (IOException e) {
             if(connected){               
                 try{                  
@@ -114,8 +121,9 @@ public class Connect {
      */
     
     public synchronized void connect() {
-
-        System.out.println("Connect " + host + ":" + port);
+          if(options.isDebug()){
+              System.out.println("Connect " + host + ":" + port);
+          }
     	try {
             client.connect();
             connected = true;
@@ -169,14 +177,30 @@ public class Connect {
             ListenerContactList l = getListenerContactList().get(i);
             l.isLoadedContactList();
         }        
-    }       
+    }   
+    
+    /**
+     * Ошибка в группе Snac
+     * @param family 
+     * @param subTupe 
+     * @param errorCode 
+     */
+    
+    public void errorNotification(int family, int subTupe, int errorCode){
+        for (int i = 0; i < getListenerConnection().size(); i++) {
+            ListenerConnection l = getListenerConnection().get(i);
+            l.errorNotification(family, subTupe, errorCode);
+        }          
+    }
     
     /**
      * Закрываем соединение.
      */
     
     public synchronized void close() {
-            System.out.println("Close");     
+        if(options.isDebug()){
+            System.out.println("Close"); 
+        }
     	try {            
             if (connected) { 
                 client.disconnect();
@@ -196,7 +220,9 @@ public class Connect {
      */
     
     public void weLogged(String BosServerAddress, byte[] cookie){
-        System.out.println("We logged");
+        if(options.isDebug()){
+            System.out.println("We logged");
+        }
         try{
             this.authorized = true;
             // сохраним cookie 
@@ -208,7 +234,9 @@ public class Connect {
             // подключаемся к boss серверу
             client = new Client(StringUtil.getAddress(BosServerAddress), StringUtil.getPort(BosServerAddress), recognizer, this);
             client.connect();
-            System.out.println("Connect BOSS server: " + BosServerAddress);        
+            if(options.isDebug()){
+                System.out.println("Connect BOSS server: " + BosServerAddress);       
+            }
             
             if(options.isContactList()){
                 contactList = new ContactList(this);

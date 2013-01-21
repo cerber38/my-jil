@@ -9,7 +9,6 @@ import ru.oscar.icq.constants.DirectConnectConstants;
 import ru.oscar.icq.constants.ProtocolVersionConstants;
 import ru.oscar.icq.constants.StatusConstants;
 import ru.oscar.icq.constants.StatusFlagConstants;
-import ru.oscar.icq.util.Dumper;
 
 /**
  * SNAC (1, 1E)
@@ -20,19 +19,19 @@ import ru.oscar.icq.util.Dumper;
 public class Snac__1_1E extends Flap {   
     
     public Snac__1_1E(StatusConstants status, StatusFlagConstants statusFlag, DirectConnectConstants directConnect
-            ,ProtocolVersionConstants protocolVersion){
+            ,ProtocolVersionConstants protocolVersion, boolean debug){
         super(CHANNEL2);
-        
+        if(debug){
         System.out.println("Status flag: " + statusFlag.toString() +
                 "\nStatus: " + status.toString() + 
                 "\nConnect type: " + directConnect.toString() +
                 "\nProtocol Version: " + protocolVersion.toString());     
+        }
         Snac snac = new Snac(0x01, 0x1E, 0x0, 0x0, 0x00);       
         
         // TLV.Type(0x06) - user status / status flags
         Tlv statusTlv = new Tlv(0x06);         
         statusTlv.addTlvData(DataWork.putWord(statusFlag.getCode()));
-        // TODO
         if(status.getCode() <= 0x0100){
             statusTlv.addTlvData(DataWork.putWord(status.getCode()));
         } else {

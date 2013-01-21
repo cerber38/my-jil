@@ -8,10 +8,11 @@ import java.util.EventObject;
 import ru.oscar.icq.DataWork;
 import ru.oscar.icq.core.api.events.MetaSearchSn;
 import ru.oscar.icq.core.api.listener.ListenerMetaInfo;
+import ru.oscar.icq.util.Dumper;
 import ru.oscar.icq.util.StringUtil;
 
 /**
- * @author Администратор
+ * @author Kornackiy Alexsandr
  */
 
 public class SearchSnParse extends BaseMetaInfoParser {
@@ -44,7 +45,14 @@ public class SearchSnParse extends BaseMetaInfoParser {
 
     public void parse(byte[] data, int index, int request) {
         isContactCheck = (request != -1); 
-        
+    /**
+     * TODO: Важно!
+     * Параметр передается при добавлении контакта.
+     * В качестве параметра группа контакта. (getGroupID())
+     * Если он найден добавим его в эту группу.
+     * Пустой параметр значит обычный пойск.
+     * @return 
+     */        
         if(isContactCheck){
             groupID = request;
         }
@@ -93,7 +101,7 @@ public class SearchSnParse extends BaseMetaInfoParser {
         index += 2;
 
         // Email
-        email = StringUtil.stringOfBytes(data, index, lastNameLen - 1);
+        email = emailNameLen > 1 ? StringUtil.stringOfBytes(data, index, lastNameLen - 1) : "";
         index += emailNameLen; 
 
         // Auth Flag

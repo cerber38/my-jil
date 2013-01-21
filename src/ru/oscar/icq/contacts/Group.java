@@ -1,6 +1,9 @@
 
 package ru.oscar.icq.contacts;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Kornackiy Alexsandr
  */
@@ -8,14 +11,14 @@ package ru.oscar.icq.contacts;
 public class Group {
     
     private int idGroup;
-    private int itemID;
     private String name;
     
-    public Group(int idGroup, int itemID, String name){
+    private Map<String, Contact> contacts = null;
+    
+    public Group(int idGroup, String name){
         this.idGroup = idGroup;
-        this.itemID = itemID;
         this.name = name;
-    }
+    }    
     
     public Group(int idGroup){
         this.idGroup = idGroup;       
@@ -23,7 +26,7 @@ public class Group {
     
     public boolean isMaster() {
         return idGroup == 0;
-    }    
+    }   
 
     /**
      * @return the id
@@ -36,7 +39,7 @@ public class Group {
      * @return the name
      */
     public String getName() {
-        if(idGroup == 0){
+        if(isMaster()){
             return "Master Group";
         }
         return name;
@@ -48,12 +51,103 @@ public class Group {
     public void setName(String name) {
         this.name = name;
     }
-
+    
     /**
-     * @return the itemID
+     * 
+     * @param c 
      */
-    public int getItemID() {
-        return itemID;
+    
+    public void putContact(Contact c){
+        if(!isContacts()){
+            contacts = new HashMap<String, Contact>(20);
+        }else{
+            contacts.put(c.getSn(), c);
+        }
     }
     
+    /**
+     * 
+     * @param sn
+     * @return 
+     */
+    
+    public Contact getContact(String sn){
+        if(isContact(sn)){
+            return contacts.get(sn);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * 
+     * @param sn 
+     */
+    
+    public void removeContact(String sn){
+        if(isContact(sn)){
+            contacts.remove(sn);
+        }
+    }
+    
+    /**
+     * 
+     * @param sn
+     * @return 
+     */
+    
+    public boolean isContact(String sn){
+        if(!isContacts()){
+            return false;
+        }
+        return contacts.containsKey(sn);
+    }  
+    
+    /**
+     * 
+     * @return the contacts
+     */
+    public Map<String, Contact> getContacts() {
+        return contacts;
+    }   
+    
+    /**
+     * 
+     * @return 
+     */
+    
+    public boolean isContacts() {
+        return contacts != null;
+    } 
+    
+    /**
+     * 
+     * @param id
+     * @return 
+     */
+    
+    public boolean isExistId(int id){
+        if(!isContacts()){
+            return false;
+        }
+        for(Contact c : getContacts().values()){
+            if(c.getId() == id){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    
+    public int contactsCount(){
+        if(contacts == null){
+            return 0;
+        }
+        return contacts.size();
+    }
+
 }

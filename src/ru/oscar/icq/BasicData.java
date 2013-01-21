@@ -70,18 +70,7 @@ public abstract class BasicData {
         }      
         return array;
     }
-    
-//    public byte[] getHeaderArray(){
-//        byte[] array = new byte[headerLength];
-//        int index = 0;
-//        for(Data header : headerData){
-//            System.arraycopy(header.getData(), 0, array, index,
-//                       header.getData().length);   
-//            index += header.getData().length;
-//        }      
-//        return array;
-//    }    
-    
+
     public int getHeaderLength(){
         return headerLength;
     }

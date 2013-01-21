@@ -2,19 +2,19 @@
 package ru.oscar.icq.core;
 
 /**
- * Класс будет проверять очередь и передавать пакеты на обработку или на отправку.
+ * Класс будет проверять очередь и передавать пакеты на обработку.
  * @author Kornackiy Alexsandr
  */
-public class InspectoPackage implements Runnable {
+public class IncomingPackage implements Runnable {
     
-    public static final String THREAD_NAME = "InspectoPackage";
+    public static final String THREAD_NAME = "IncomingPackage";
     
     private Thread thread;
     private Client client;
     
     private boolean runnable;
     
-    public InspectoPackage(Client client) {
+    public IncomingPackage(Client client) {
         this.client = client;
         runnable = true;
         thread = new Thread(this, THREAD_NAME);
@@ -24,10 +24,10 @@ public class InspectoPackage implements Runnable {
     @Override
     public void run() {
         while(runnable) {  
-            if(!client.getQueue().isEmpty()){
+            if(!client.getQueueIncoming().isEmpty()){
                 try {
                     
-                    client.getRecognizer().incoming(client.getQueue().take());
+                    client.getRecognizer().parserPackage(client.getQueueIncoming().take());
 
                 } catch (InterruptedException ex) {
                    // ..

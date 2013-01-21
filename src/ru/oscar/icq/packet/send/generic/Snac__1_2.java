@@ -4,8 +4,6 @@ package ru.oscar.icq.packet.send.generic;
 import ru.oscar.icq.DataWork;
 import ru.oscar.icq.Flap;
 import ru.oscar.icq.Snac;
-import ru.oscar.icq.core.Connect;
-import ru.oscar.icq.core.api.listener.ListenerConnection;
 
 /**
  * SNAC (1, 2)
@@ -30,10 +28,12 @@ public class Snac__1_2 extends Flap {
 	(byte)0x00, (byte)0x0b, (byte)0x00, (byte)0x01, (byte)0x01, (byte)0x10, (byte)0x17, (byte)0xf2
     };    
         
-    public Snac__1_2(){
+    public Snac__1_2(boolean debug){
         super(CHANNEL2);
         
-        System.out.println("We are ready");
+        if(debug){
+            System.out.println("We are ready");
+        }
         
         Snac snac = new Snac(0x01, 0x02, 0x0, 0x0, 0x00);
         

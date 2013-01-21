@@ -13,7 +13,7 @@ public class Util {
     
     public static int nextRandInt() {
         return Math.abs(Math.max(Integer.MIN_VALUE + 1, rand.nextInt()));
-    }    
+    }   
     
     
 

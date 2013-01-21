@@ -20,11 +20,6 @@ public class Snac__9_3 extends DefaultCommand{
     }
     @Override
     public void notify(Connect connect) {
-//        connect.sendPacket(new Snac__1_1E(connect.getOptionsConnect().getStatus(),
-//                connect.getOptionsConnect().getStatusFlag(), 
-//                connect.getOptionsConnect().getDirectConnect(),
-//                connect.getOptionsConnect().getProtocolVersion()));
-//        connect.sendPacket(new Snac__1_2(connect));
         connect.sendPacket(new Snac__13_2());
     }
 }

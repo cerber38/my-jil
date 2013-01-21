@@ -20,7 +20,6 @@ public class PacketRecognizer {
     
     private int number = 0;   
     
-//    private final SnacBuilder commands;
     private SnacBuilder commands;
     
     public PacketRecognizer(Connect connect){
@@ -28,10 +27,10 @@ public class PacketRecognizer {
         commands = new SnacBuilder();
     }
     
-    public void incoming(byte[] array){
+    public void parserPackage(byte[] array){
         number++;
         if(authorization(array)){
-          workingSnac(array); 
+          parserSnac(array); 
         }
     }
        
@@ -52,25 +51,33 @@ public class PacketRecognizer {
     }
 
 
-    private void workingSnac(byte[] array){                
+    private void parserSnac(byte[] array){                
         Packet flap = new Packet(array, true);
         
         int familyID = flap.getSnac().getFamilyID();
         int subType = flap.getSnac().getSubTypeID();
         
-        Dumper.println("Incoming Packet: (" + familyID + "," + subType + ")", array, true, 8, 16);
-
+        if(connect.getOptionsConnect().isDebug()){
+            System.out.println("Incoming Packet: (" + familyID + "," + subType + ")\nDump:\n" + Dumper.dump(array, true));
+        }
+        
+        // This is an error notification snac.
+        if(subType == 1){
+            connect.errorNotification(familyID, subType, flap.getSnac().getError());
+            return;
+        }
+   
         try{            
             Command c = commands.getCommand(familyID + "_" + subType);
             if(c != null){
-//                c.init();
                 c.exec(flap);
                 c.notify(connect);
             } else {
                 // unknow snac
-//                if(logger.isDebugEnabled()){
-//                    System.out.println("unknow snac: (" + familyID + "," + subType + ")"
-//                            + "\nDump:" + Dumper.dump(array, true));
+                if(connect.getOptionsConnect().isDebug()){
+                        System.out.println("Unknow snac: (" + familyID + "," + subType + ")"
+                                + "\nDump:\n" + Dumper.dump(array, true));
+                }
             }
             array = null;
             }catch (Exception e) {

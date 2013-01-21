@@ -11,8 +11,24 @@ import java.util.Map;
 import ru.oscar.icq.constants.SsiConstants;
 import ru.oscar.icq.core.Connect;
 import ru.oscar.icq.packet.send.meta.SearchByUin;
-import ru.oscar.icq.packet.send.ssi.SsiService;
+import ru.oscar.icq.packet.send.ssi.AddsContact;
+import ru.oscar.icq.packet.send.ssi.AddsGroup;
+import ru.oscar.icq.packet.send.ssi.AddsList;
+import ru.oscar.icq.packet.send.ssi.RemoveContact;
+import ru.oscar.icq.packet.send.ssi.RemoveGroup;
+import ru.oscar.icq.packet.send.ssi.RemoveList;
+import ru.oscar.icq.packet.send.ssi.Snac__13_11;
+import ru.oscar.icq.packet.send.ssi.Snac__13_12;
+import ru.oscar.icq.packet.send.ssi.Snac__13_14;
+import ru.oscar.icq.packet.send.ssi.Snac__13_16;
+import ru.oscar.icq.packet.send.ssi.Snac__13_18;
+import ru.oscar.icq.packet.send.ssi.Snac__13_1A;
+import ru.oscar.icq.packet.send.ssi.Snac__13_1C;
+import ru.oscar.icq.packet.send.ssi.UpdateContact;
+import ru.oscar.icq.packet.send.ssi.UpdateGroup;
+import ru.oscar.icq.packet.send.ssi.UpdateGroups;
 import ru.oscar.icq.util.StringUtil;
+import ru.oscar.icq.util.Util;
 
 /**
  * Класс работает с контакт листом
@@ -24,31 +40,26 @@ public class ContactList {
     private Connect connect;
     
     private Map<Integer, Group> groups; 
-    private Map<String, Contact> contacts;
     
-    private int maxContactID;
+    private ArrayList<Privacy> privacyList;  
     
     public ContactList(Connect connect){
         this.connect = connect;
         groups = new HashMap<Integer, Group>(20);
-        contacts = new HashMap<String, Contact>(20);
+        privacyList = new ArrayList<Privacy>(10);           
     }
     
     /**
-     * Получем набор груп и контактов, сохраняем их
-     * @param contacts
+     * Получем набор групп с контактами
      * @param group
-     * @param maxContactID  
+     * @param visibleList_ 
+     * @param invisibleList_
+     * @param ignoreList_  
      */
            
-    public void putContacts(Map<String, Contact> contacts,
-            Map<Integer, Group> group, int maxContactID){
-        
-        getGroups().putAll(group);
-        getContacts().putAll(contacts);  
-        
-        this.maxContactID = maxContactID;
-        
+    public void putGroups(Map<Integer, Group> group, ArrayList<Privacy> privacyList_){      
+        groups.putAll(group);  
+        privacyList.addAll(privacyList_);
     }   
     
     /**
@@ -59,48 +70,56 @@ public class ContactList {
      * @param auth  
      */
     
-    public void addContact(String sn, String name, int groupID, boolean auth){     
-        maxContactID++;
-        Contact c = new Contact(maxContactID, sn, name, groupID, auth);
-        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_ADD);
-        ssi.init();        
-        getContacts().put(sn, c);
-        if(auth){
+    public void addContact(String sn, String name, int groupID, boolean auth){ 
+        Contact contact = new Contact(createRandomId(), sn, name, groupID, auth);
+   
+        Group g = groups.get(groupID);
+        g.putContact(contact);
+        groups.put(groupID, g);
+               
+        addContact(contact);
+        
+        if(!auth){
             // authorization request
-        }
-    }
-
-    private void addContact(String sn, int groupID){   
-        if(isContact(sn)){
-            System.err.println("Contact "+ sn +" has been added to your contact list.");
-            return;
-        }      
-        maxContactID++;
-        Contact c = new Contact(maxContactID, sn, sn, groupID);
-        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_ADD);
-        ssi.init();
-        getContacts().put(sn, c);        
-    }   
-    
-    public void addContact(String sn, String groupName){          
-        if(getGroup(groupName) == null){
-            addContact(sn, 0);
+            sendAuthRequest(sn, "Authorizes me please.");
         } else {
-            addContact(sn, getGroup(groupName).getIdGroup());
+            // send you-were-added
+            //sendYouWereAdded(sn);
         }       
     }
 
-    public void addContact(String sn){   
-        if(isContact(sn)){
-            System.err.println("Contact "+ sn +" has been added to your contact list.");
-            return;
-        }  
-        maxContactID++;
-        Contact c = new Contact(maxContactID, sn, sn, 0);
-        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_ADD);
-        ssi.init();
-        getContacts().put(sn, c);          
-    }    
+    private void addContact(Contact contact){      
+        //begin transaction
+        connect.sendPacket(new Snac__13_11());
+        //Add contacts to the server's contact list
+        connect.sendPacket(new AddsContact(contact));
+        // Update group
+        connect.sendPacket(new UpdateGroup(groups.get(contact.getGroupID())));
+        //finish transaction
+        connect.sendPacket(new Snac__13_12());             
+    }   
+    
+    /**
+     * Добавить группу
+     * @param name 
+     */
+
+    public void addGroup(String name){
+        //begin transaction
+        connect.sendPacket(new Snac__13_11());
+        //Add group to the server's contact list
+        connect.sendPacket(new AddsGroup(new Group(createRandomId(), name)));
+        //update groups
+        if(groups.size() > 0){
+            ArrayList groupsID = new ArrayList(groups.size()); 
+            for(Group group : groups.values()){
+                groupsID.add(group.getIdGroup());
+            }       
+            connect.sendPacket(new UpdateGroups(groupsID));   
+        }
+        //finish transaction
+        connect.sendPacket(new Snac__13_12());         
+    }
     
     /**
      * Проверим контакт перед добавлением
@@ -108,11 +127,7 @@ public class ContactList {
      * @param groupID  
      */
     
-    public void checkContact(String sn, int groupID){      
-        if(isContact(sn)){
-            System.err.println("Contact "+ sn +" has been added to your contact list.");
-            return;
-        }      
+    public void checkContact(String sn, int groupID){         
         connect.sendPacket(new SearchByUin(sn, connect.getSN(), groupID));
     }
     
@@ -130,14 +145,65 @@ public class ContactList {
      */
     
     public void removeContact(String sn){
-        if(!isContact(sn)){
-            System.err.println("Contact "+ sn +" is not in contact list.");
-            return;
-        }  
-        Contact c = getContact(sn);      
-        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_REMOVE);
-        ssi.init();
-        getContacts().remove(sn);
+        Contact c = getContact(sn); 
+        //begin transaction
+        connect.sendPacket(new Snac__13_11());
+        //Remove contacts to the server's contact list
+        connect.sendPacket(new RemoveContact(c));
+        // Update group
+        connect.sendPacket(new UpdateGroup(groups.get(c.getGroupID())));        
+        //finish transaction
+        connect.sendPacket(new Snac__13_12()); 
+        groups.get(c.getGroupID()).removeContact(sn);
+    }
+    
+    /**
+     * Удалить группу
+     * @param g 
+     */
+    
+    public void removeGroup(Group g){     
+        //begin transaction
+        connect.sendPacket(new Snac__13_11());
+        //Remove group to the server's contact list
+        connect.sendPacket(new RemoveGroup(g)); 
+        //update groups
+        ArrayList groupsID = new ArrayList(groups.size()); 
+        for(Group group : groups.values()){
+            groupsID.add(group.getIdGroup());
+        }
+        connect.sendPacket(new UpdateGroups(groupsID));     
+        //finish transaction
+        connect.sendPacket(new Snac__13_12()); 
+        groups.remove(g.getIdGroup());
+    }
+    
+    /**
+     * Удалить группу
+     * Перед удалением перенесет контакты в другую группу
+     * @param g
+     * @param g1 - группа в которую переносим контакты
+     */
+    
+    public void removeGroup(Group g, Group g1){   
+        if(g1 != null){
+            for(Contact contact : g.getContacts().values()){
+                changeContactGroup(contact.getSn(), g1);
+            }
+        }
+        //begin transaction
+        connect.sendPacket(new Snac__13_11());
+        //Remove group to the server's contact list
+        connect.sendPacket(new RemoveGroup(g)); 
+        //update groups
+        ArrayList groupsID = new ArrayList(groups.size()); 
+        for(Group group : groups.values()){
+            groupsID.add(group.getIdGroup());
+        }
+        connect.sendPacket(new UpdateGroups(groupsID));     
+        //finish transaction
+        connect.sendPacket(new Snac__13_12()); 
+        groups.remove(g.getIdGroup());        
     }
     
     /**
@@ -146,18 +212,164 @@ public class ContactList {
      * @param newName 
      */
     
-    public void renameContact(String sn, String newName){
-        Contact c = getContact(sn);        
-//        connect.sendPacket(new SetNameContact(c));
+    public void renameContact(String sn, String newName){      
         if(StringUtil.isEmpty(newName)){
             System.err.println("Incorrect contact nick.");
             return;            
         }
-        c.setName(newName);
-        SsiService ssi = new SsiService(connect, c, SsiConstants.SSI_UPDATE);
-        ssi.init();
+       Contact c = getContact(sn); 
+       c.setName(newName);
+       groups.get(c.getGroupID()).putContact(c);
+       connect.sendPacket(new UpdateContact(c));
+    }
+    
+    /**
+     * Переминовать группу
+     */
+    
+    public void renameGroup(Group g, String newName){      
+        if(StringUtil.isEmpty(newName)){
+            System.err.println("Incorrect contact nick.");
+            return;            
+        }
+       g.setName(newName);
+       groups.put(g.getIdGroup(), g);
+       connect.sendPacket(new UpdateGroup(g));
+    }    
+    
+    /**
+     * Добавить в "список"
+     * @param sn
+     */
+    
+    public void addList(String sn, int list){
+        int id = createRandomId(); 
+        switch(list){
+            case SsiConstants.TYPE_VISIBLE:                 
+                privacyList.add(new Privacy(sn, id, SsiConstants.TYPE_VISIBLE));
+                connect.sendPacket(new AddsList(sn, id, SsiConstants.TYPE_VISIBLE));
+            break;
+            case SsiConstants.TYPE_INVISIBLE:              
+                privacyList.add(new Privacy(sn, id, SsiConstants.TYPE_INVISIBLE));
+                connect.sendPacket(new AddsList(sn, id, SsiConstants.TYPE_INVISIBLE));
+            break;
+            case SsiConstants.TYPE_IGNORE_LIST:
+                privacyList.add(new Privacy(sn, id, SsiConstants.TYPE_IGNORE_LIST));
+                connect.sendPacket(new AddsList(sn, id, SsiConstants.TYPE_IGNORE_LIST));
+            break;                
+        }       
+    }
+    
+    /**
+     * Удалить из "списка"
+     * @param sn
+     */
+    
+    public void removeList(String sn){
+        Privacy p = getPrivacyList(sn);
+        if(p == null){
+            return;// TODO: этого быть не должно
+        }
+        switch(p.getType()){
+            case SsiConstants.TYPE_VISIBLE:  
+                connect.sendPacket(new RemoveList(sn, p.getId(), SsiConstants.TYPE_VISIBLE));
+            break;
+            case SsiConstants.TYPE_INVISIBLE:
+                connect.sendPacket(new RemoveList(sn, p.getId(), SsiConstants.TYPE_INVISIBLE));
+            break;
+            case SsiConstants.TYPE_IGNORE_LIST:
+                connect.sendPacket(new RemoveList(sn, p.getId(), SsiConstants.TYPE_IGNORE_LIST));
+            break;                
+        }
+        removePrivacyList(p);
+    }
+    
+    /**
+     * Найдет контакт в приватных списках
+     * @param sn
+     * @return 
+     */
+    
+    public Privacy getPrivacyList(String sn) {
+        for (Privacy p : privacyList) {
+            if (p.getSn().equals(sn)) {
+                return p;
+            }
+        }
+        return null;
+    }    
+    
+    /**
+     * Перенесем контакт в другую группу
+     * @param sn
+     * @param groupNew - куда переносим
+     */
+    
+    public void changeContactGroup(String sn, Group groupNew){
+       Contact c = getContact(sn); 
+       //begin transaction
+       connect.sendPacket(new Snac__13_11());  
+       //Remove contacts to the server's contact list
+       connect.sendPacket(new RemoveContact(c));       
+       c.setGroupID(groupNew.getIdGroup());
+       groups.get(c.getGroupID()).putContact(c);
+       //Add contacts to the server's contact list
+       connect.sendPacket(new AddsContact(c));       
+       // Update group
+       connect.sendPacket(new UpdateGroup(groups.get(c.getGroupID())));        
+       //finish transaction
+       connect.sendPacket(new Snac__13_12());       
     }
    
+    /**
+     * Отправить вас добавили
+     * @param sn 
+     */
+    
+    public void sendYouWereAdded(String sn){
+        connect.sendPacket(new Snac__13_1C(sn));
+    }
+    
+    /**
+     * Запрос авторизации
+     * @param sn
+     * @param message 
+     */
+    
+    public void sendAuthRequest(String sn, String message){
+        connect.sendPacket(new Snac__13_18(sn, message));
+    } 
+    
+    /**
+     * Ответ на запрос авторизации
+     * @param sn
+     * @param message
+     * @param auth 
+     */
+    
+    public void sendAuthReply(String sn, String message, boolean auth){
+        connect.sendPacket(new Snac__13_1A(sn, message, auth));
+    }     
+    
+    /**
+     * Позволить добавить нас
+     * @param sn
+     * @param message 
+     */
+    
+    public void sendFutureAuth(String sn, String message){
+        connect.sendPacket(new Snac__13_14(sn, message));
+    }  
+    
+    /**
+     * Удалить себя из кл
+     * @param sn 
+     */
+    
+    public void sendDeleteYourself(String sn){
+        connect.sendPacket(new Snac__13_16(sn));
+    }
+    
     /**
      * Получим группу по id
      * @param id
@@ -166,16 +378,6 @@ public class ContactList {
     
     public Group getGroup(int id){
         return groups.get(id);
-    }
-    
-    /**
-     * Получить контакт 
-     * @param sn
-     * @return 
-     */
-    
-    public Contact getContact(String sn){
-        return contacts.get(sn);
     }      
     
     /**
@@ -196,8 +398,21 @@ public class ContactList {
         return null;
     }
     
-    public boolean isContact(String sn){
-        return contacts.containsKey(sn);
+    /**
+     * 
+     * @param sn
+     * @return
+     */
+    public Contact getContact(String sn){
+        Iterator iterator  = getGroups().keySet().iterator();
+        while (iterator.hasNext()) {
+            int id = (Integer)iterator.next();
+            Group g = getGroups().get(id);
+            if(g.isContact(sn)){
+                return g.getContact(sn);
+            }
+        }
+        return null;
     }    
     
     /**
@@ -217,44 +432,17 @@ public class ContactList {
     public Map<Integer, Group> getGroups() {
         return groups;
     }
-    
-    /**
-     * Набор контактов
-     * @return the contacts
-     */
-    public Map<String, Contact> getContacts() {
-        return contacts;
-    }           
-    
-    /**
-     * Распределяем контакты по групам сортируя их по статусам
-     * @return 
-     */
-    
-    public List<Contact> sorterGroup(){
-        
-        List<Contact> list = new ArrayList<Contact>(contacts.values());
-        
-        Collections.sort(list, new Comparator<Contact> () {
-        
-            @Override
-            public int compare(Contact c1, Contact c2) {
-                int k = c1.getGroupID() - c2.getGroupID();
-                return k == 0 ? c1.getStatus().getCode() - c2.getStatus().getCode() : k;
-            }
-        });         
-        
-        return list;
-    }
+             
     
     /**
      * Сортируем контакты по статусам
-     * @return 
+         * @param g 
+         * @return 
      */
     
-    public List<Contact> sorterStatus(){
-        
-        List<Contact> list = new ArrayList<Contact>(contacts.values());
+    public List<Contact> sorterStatus(Group g){
+
+        List<Contact> list = new ArrayList<Contact>(g.getContacts().values());
         
         Collections.sort(list, new Comparator<Contact> () {
         
@@ -267,5 +455,49 @@ public class ContactList {
         
         return list;
     }
+    
+    // From miranda source
+    
+    public int createRandomId() {
+        int id;
+        do {
+            // Max value is probably 0x7FFF, lowest value is unknown.
+            // We use range 0x1000-0x7FFF.          
+            id = Util.nextRandInt() % 0x6FFF + 0x1000;
+        } while (isExistId(id));
+        return id;
+    }
+    
+    private boolean isExistId(final int id) {
+        if (id == connect.getOptionsConnect().getPrivacyStatusId()) {
+            return true;
+        }       
+        Iterator iteratorG  = getGroups().keySet().iterator();
+        
+        while (iteratorG.hasNext()) {
+            int idGroup = (Integer)iteratorG.next();
+            if(idGroup == id){
+                return true;
+            }    
+            if(groups.get(idGroup).isExistId(id)){
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * @return the privacyList
+     */
+    public ArrayList getPrivacyList() {
+        return privacyList;
+    }
+    
+    private void removePrivacyList(Privacy p){
+        if(privacyList.contains(p)){
+            privacyList.remove(p);
+        }
+    }  
     
     }

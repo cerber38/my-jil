@@ -10,7 +10,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.net.SocketFactory;
 import ru.oscar.icq.DataWork;
-import ru.oscar.icq.util.Dumper;
 
 /**
  * Класс клиент.
@@ -21,14 +20,14 @@ public class Client implements Runnable {
     
     public static final String THREAD_NAME = "ClientThread";    
     
-    private BlockingQueue<byte[]> queue;
+    private BlockingQueue<byte[]> queueIncoming; // Входящие
   
     private Socket socketClient;    
     private SocketFactory factory;
     private InputStream in;
     private OutputStream out;
     private Thread runner;
-    private InspectoPackage handler;
+    private IncomingPackage handler;
     private PacketRecognizer recognizer;
     private Connect connect;
     
@@ -63,7 +62,7 @@ public class Client implements Runnable {
      */
     
     public Client(String host, int port, PacketRecognizer recognizer, SocketFactory factory, Connect connect) {
-        queue = new LinkedBlockingQueue<byte[]>(50);
+        queueIncoming = new LinkedBlockingQueue<byte[]>(50);
         this.recognizer = recognizer;     
         this.host = host;
         this.port = port;
@@ -87,7 +86,7 @@ public class Client implements Runnable {
     	}
     	out = socketClient.getOutputStream();
     	in = socketClient.getInputStream();
-        handler = new InspectoPackage(this);
+        handler = new IncomingPackage(this);
         timeSupport = System.currentTimeMillis();
         runner.start();       
     }   
@@ -113,7 +112,7 @@ public class Client implements Runnable {
         		}finally {
         			running = false;
         			handler.stop();
-                                queue.clear();
+                                queueIncoming.clear();
         		}
         	}
         }
@@ -143,7 +142,7 @@ public class Client implements Runnable {
                     if (in.available() >= packetLen) {
                         in.read(packet, 6, packetLen);
                         System.arraycopy(header, 0, packet, 0, 6);
-                        queue.put(packet);       
+                        queueIncoming.put(packet);       
                         waitData = false;
                     }
                 }
@@ -163,8 +162,8 @@ public class Client implements Runnable {
         }           
     }
 
-    public BlockingQueue<byte[]> getQueue(){
-        return queue;
+    public BlockingQueue<byte[]> getQueueIncoming(){
+        return queueIncoming;
     }
     
     public PacketRecognizer getRecognizer(){
@@ -177,8 +176,7 @@ public class Client implements Runnable {
      * @throws IOException 
      */
     
-    public void sendPacket(byte[] packet) throws IOException {
-        Dumper.println("Send Packet:", packet, true, 8, 16);   
+    public void sendPacket(byte[] packet) throws IOException {          
         timeSupport = System.currentTimeMillis();
         out.write(packet);
         out.flush();

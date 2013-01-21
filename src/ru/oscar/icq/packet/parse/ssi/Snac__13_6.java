@@ -1,6 +1,7 @@
 
 package ru.oscar.icq.packet.parse.ssi;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import ru.oscar.icq.DataWork;
@@ -9,13 +10,13 @@ import ru.oscar.icq.Tlv;
 import ru.oscar.icq.constants.SsiConstants;
 import ru.oscar.icq.contacts.Contact;
 import ru.oscar.icq.contacts.Group;
+import ru.oscar.icq.contacts.Privacy;
 import ru.oscar.icq.core.Connect;
 import ru.oscar.icq.core.cmd.DefaultCommand;
 import ru.oscar.icq.packet.send.generic.Snac__1_1E;
 import ru.oscar.icq.packet.send.generic.Snac__1_2;
 import ru.oscar.icq.packet.send.location.Snac__2_4;
-import ru.oscar.icq.packet.send.ssi.PrivacyItem;
-import ru.oscar.icq.util.Dumper;
+import ru.oscar.icq.packet.send.ssi.PrivacyStatus;
 import ru.oscar.icq.util.StringUtil;
 
 /**
@@ -28,12 +29,12 @@ import ru.oscar.icq.util.StringUtil;
 public class Snac__13_6 extends DefaultCommand{   
     
     private int privacyStatusId;
-    private int maxContactID;
     
     private boolean isLoadContactList = false;
 
     private Map<Integer, Group> group;  
-    private Map<String, Contact> contacts;
+    
+    private ArrayList<Privacy> privacyList;     
     
     public Snac__13_6(){
         super();       
@@ -42,7 +43,7 @@ public class Snac__13_6 extends DefaultCommand{
         @Override
     public void exec(Flap f) {    
         group = new HashMap<Integer, Group>(20);    
-        contacts = new HashMap<String, Contact>(20);
+        privacyList = new ArrayList<Privacy>(10);
         if(f.getSnac().getFlags1() == 0){
             isLoadContactList = true;
         }
@@ -107,13 +108,18 @@ public class Snac__13_6 extends DefaultCommand{
                     nick = StringUtil.utf8ByteArrayToString(tlv.getDataArray(), 0, tlv.getDataArray().length);
                 } else if (0x0066 == tlv.getTlvType()) {
                     auth = true;
-                }       
-                               
+                }                                      
                 Contact c = new Contact(itemID, itemName, nick, groupID, auth);
-                contacts.put(itemName, c);
-                
-                if(maxContactID <  itemID){
-                    maxContactID = itemID;
+                Group g;
+
+                if(group.containsKey(groupID)){
+                    g = group.get(groupID);
+                    g.putContact(c);
+                    group.put(groupID, g);
+                } else {
+                    g = new Group(groupID, null);
+                    g.putContact(c);
+                    group.put(groupID, g);
                 }
                 
                 len -= tlv.getTlvLength() + 4;
@@ -125,7 +131,16 @@ public class Snac__13_6 extends DefaultCommand{
                 
                 index += len;
                 
-                group.put(groupID, new Group(groupID, itemID, itemName));
+                Group g;
+                
+                if(group.containsKey(groupID)){
+                    g = group.get(groupID);
+                    g.setName(itemName);
+                    group.put(groupID, g);                    
+                } else {
+                    g = new Group(groupID, itemName);
+                    group.put(groupID, g);
+                }
                 
             //Permit/deny settings or/and bitmask of the AIM classes
             } else if (SsiConstants.TYPE_VISIBILITY == itemFlag) {
@@ -137,17 +152,25 @@ public class Snac__13_6 extends DefaultCommand{
                 
                 len -= tlv.getTlvLength() + 4;
                 index += tlv.getTlvLength() + 4;                
-
-            } else {
+            } else if (SsiConstants.TYPE_VISIBLE == itemFlag) {
+                index += len;
+                privacyList.add(new Privacy(itemName, itemID, SsiConstants.TYPE_VISIBLE));
+            } else if (SsiConstants.TYPE_INVISIBLE == itemFlag) {
+                index += len;
+                privacyList.add(new Privacy(itemName, itemID, SsiConstants.TYPE_INVISIBLE));
+            } else if (SsiConstants.TYPE_IGNORE_LIST == itemFlag) {    
+                index += len;
+                privacyList.add(new Privacy(itemName, itemID, SsiConstants.TYPE_IGNORE_LIST));
+            } else {    
                 index += len;
             }            
         }
     }
         
     public void notify(Connect connect) {
-        connect.getContactList().putContacts(contacts, group, maxContactID);
+        connect.getContactList().putGroups(group, privacyList);
         group.clear();
-        contacts.clear();
+        privacyList.clear();
         if(privacyStatusId != 0){
             connect.getOptionsConnect().setPrivacyStatusId(privacyStatusId);
         }
@@ -155,18 +178,19 @@ public class Snac__13_6 extends DefaultCommand{
             // контакт лист загружен          
             connect.isLoadedContactList();
             // send privacy status
-            connect.sendPacket(new PrivacyItem(connect.getOptionsConnect().getPrivacyStatus(),
-                    connect.getOptionsConnect().getPrivacyStatusId()));
+            connect.sendPacket(new PrivacyStatus(connect.getOptionsConnect().getPrivacyStatus(),
+                    connect.getOptionsConnect().getPrivacyStatusId(), connect.getOptionsConnect().isDebug()));
             // send status
             connect.sendPacket(new Snac__1_1E(connect.getOptionsConnect().getStatus(),
                     connect.getOptionsConnect().getStatusFlag(), 
                     connect.getOptionsConnect().getDirectConnect(),
-                    connect.getOptionsConnect().getProtocolVersion()));   
+                    connect.getOptionsConnect().getProtocolVersion(),
+                    connect.getOptionsConnect().isDebug()));   
             // возможности и х-статус
             connect.sendPacket(new Snac__2_4(connect.getOptionsConnect().getCapabilities(),
                     connect.getOptionsConnect().getXstatus(), connect.getOptionsConnect().getStatus()));
             // Мы готовы выйти в интернет
-            connect.sendPacket(new Snac__1_2());
+            connect.sendPacket(new Snac__1_2(connect.getOptionsConnect().isDebug()));
 
             connect.successfulConnected();            
         }             

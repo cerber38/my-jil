@@ -64,5 +64,5 @@ public class Flap extends BasicData implements ChannelsConstants, TlvConstants, 
 
     public Snac getSnac(){
         return snac;
-    }
+    }    
 }

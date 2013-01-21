@@ -26,9 +26,9 @@ public class AuthorizationRequest extends Flap {
         // TLV.Type(0x02) - roasted password
         addTlv(new Tlv(TLV_TYPE_ROASTED_PASSWORD, DataWork.putArray(StringUtil.encryptPassword1(password))));
         // TLV.Type(0x03) - client id string
-        addTlv(new Tlv(TLV_TYPE_CLIENT_ID_STRING, "Java ICQ Library"));
+        addTlv(new Tlv(TLV_TYPE_CLIENT_ID_STRING, "JAVA ICQ LIBRARY"));
         // TLV.Type(0x16) - client id
-        addTlv(new Tlv(TLV_TYPE_CLIENT_ID,  DataWork.putWord(0x07)));
+        addTlv(new Tlv(TLV_TYPE_CLIENT_ID,  DataWork.putWord(0x08)));
         // TLV.Type(0x17) 
         addTlv(new Tlv(TLV_TYPE_CLIENT_MAJOR_VERSION,  DataWork.putWord(0x05)));
         // TLV.Type(0x18) 

@@ -15,7 +15,7 @@ public class MetaSearchSn extends EventObject {
     
     public boolean isSearch() {
         return ((SearchSnParse) getSource()).isSearch();
-    }
+    }   
     
     public boolean isContactCheck() {
         return ((SearchSnParse) getSource()).isContactCheck();

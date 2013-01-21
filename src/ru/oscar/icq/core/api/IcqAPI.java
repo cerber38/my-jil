@@ -15,7 +15,7 @@ import ru.oscar.icq.packet.send.icbm.XStatusRequest;
 import ru.oscar.icq.packet.send.location.Snac__2_4;
 import ru.oscar.icq.packet.send.meta.RequestShortInfo;
 import ru.oscar.icq.packet.send.meta.SearchByUin;
-import ru.oscar.icq.packet.send.ssi.PrivacyItem;
+import ru.oscar.icq.packet.send.ssi.PrivacyStatus;
 
 /**
  * @author Kornackiy Alexsandr
@@ -80,7 +80,8 @@ public class IcqAPI {
         connect.sendPacket(new Snac__1_1E(status,
                 connect.getOptionsConnect().getStatusFlag(), 
                 connect.getOptionsConnect().getDirectConnect(),
-                connect.getOptionsConnect().getProtocolVersion()));  
+                connect.getOptionsConnect().getProtocolVersion(),
+                connect.getOptionsConnect().isDebug()));  
         
     }
     
@@ -95,7 +96,8 @@ public class IcqAPI {
         connect.sendPacket(new Snac__1_1E(connect.getOptionsConnect().getStatus(),
                 statusFlag, 
                 connect.getOptionsConnect().getDirectConnect(),
-                connect.getOptionsConnect().getProtocolVersion()));        
+                connect.getOptionsConnect().getProtocolVersion(),
+                connect.getOptionsConnect().isDebug()));        
     }   
     
     /**
@@ -118,8 +120,9 @@ public class IcqAPI {
     
     public static void changePrivacyStatus(Connect connect, PrivacyStatusConstants privacyStatus){
         connect.getOptionsConnect().setPrivacyStatus(privacyStatus);
-        connect.sendPacket(new PrivacyItem(privacyStatus,
-                    connect.getOptionsConnect().getPrivacyStatusId()));    
+        connect.sendPacket(new PrivacyStatus(privacyStatus,
+                    connect.getOptionsConnect().getPrivacyStatusId(),
+                    connect.getOptionsConnect().isDebug()));    
     }   
     
     /**

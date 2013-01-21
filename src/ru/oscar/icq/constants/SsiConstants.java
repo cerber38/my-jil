@@ -7,11 +7,6 @@ package ru.oscar.icq.constants;
 
 public interface SsiConstants {
     
-    public static final int SSI_ADD = 0x0001;
-    public static final int SSI_UPDATE = 0x0002;
-    public static final int SSI_REMOVE = 0x0003;
-    public static final int SSI_MOVE = 0x0004;
-    
     public static final short TYPE_CONTACT = 0x0000;
     public static final short TYPE_GROUP = 0x0001;
     public static final short TYPE_VISIBLE = 0x0002;

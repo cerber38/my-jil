@@ -30,7 +30,9 @@ public class Snac__1_13 extends DefaultCommand{
 
     @Override
     public void notify(Connect connect) {
-        System.out.println(new MotdConstants(type).toString());
+        if(connect.getOptionsConnect().isDebug()){
+            System.out.println(new MotdConstants(type).toString());
+        }
     }
     
 

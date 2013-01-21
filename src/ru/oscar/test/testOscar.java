@@ -2,16 +2,23 @@ package ru.oscar.test;
 
 import java.util.Iterator;
 import ru.oscar.icq.constants.DirectConnectConstants;
+import ru.oscar.icq.constants.ErrorConstants;
 import ru.oscar.icq.constants.MessageTypesConstants;
 import ru.oscar.icq.constants.PrivacyStatusConstants;
 import ru.oscar.icq.constants.ProtocolVersionConstants;
+import ru.oscar.icq.constants.SsiConstants;
 import ru.oscar.icq.constants.StatusConstants;
 import ru.oscar.icq.constants.StatusFlagConstants;
 import ru.oscar.icq.constants.XStatusConstants;
 import ru.oscar.icq.contacts.Contact;
 import ru.oscar.icq.contacts.ContactList;
+import ru.oscar.icq.contacts.Group;
+import ru.oscar.icq.contacts.IContactList;
 import ru.oscar.icq.core.Connect;
 import ru.oscar.icq.core.api.IcqAPI;
+import ru.oscar.icq.core.api.events.AuthReplyEvent;
+import ru.oscar.icq.core.api.events.AuthRequestEvent;
+import ru.oscar.icq.core.api.events.FutureAuthEvent;
 import ru.oscar.icq.core.api.events.MessageEvent;
 import ru.oscar.icq.core.api.events.MetaShortInfoEvent;
 import ru.oscar.icq.core.api.events.MetaSearchSn;
@@ -26,12 +33,14 @@ import ru.oscar.icq.setting.Capabilities;
 import ru.oscar.icq.setting.OptionsConnecting;
 
 public class testOscar implements ListenerConnection, ListenerMessages, ListenerXStatus, ListenerContactList,
-        ListenerMetaInfo{
+        ListenerMetaInfo, IContactList{
     
-    private String sn = "363499099";
-    private String password = "R8UYza2b";     
+    private static final int MAX_CONTACTS_IN_GROUP = 200;// TODO: не факт что 200
+    
+    private String sn = "596205";
+    private String password = ":P";     
     private String title = "title";
-    private String description = "description";
+    private String description = "description";   
     
     private Connect c;
 
@@ -47,6 +56,8 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         options.setProtocolVersion(new ProtocolVersionConstants(ProtocolVersionConstants.DCP_ICQLITE));
         options.setCapabilities(new Capabilities(Capabilities.JIL));
         options.setContactList(true);
+//       options.setYouWereAdded(true);// отправлять "Вас добавили"
+        options.setDebug(false);
         options.setTyping(false);
         c = new Connect(sn, password, options);       
         c.putListenerConnection(this);
@@ -81,7 +92,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
 
     @Override
     public void failureConnection(String message) {
-        System.out.println(message);
+        System.out.println("Authorization failed!\nMessage: " + message);
         
     }
     
@@ -92,16 +103,16 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
 
     @Override
     public void breakConnection(String message) {
-        System.out.println("Break connect " + message);
+        System.out.println("Break connect!\nMessage: " + message);
     }
     
     /**
      * Входящее сообщение
      * @param e 
-     */
+     */    
+    
     public void onIncomingMessage(MessageEvent e) {
-        System.out.println("Incoming message: " + e.getSenderID() + " >> " + e.getMessage());
-        sendMessage(e.getSenderID(), e.getMessage(), 1);    
+        System.out.println("Incoming message: " + e.getSenderID() + " >> " + e.getMessage()); 
     }
     
     /**
@@ -135,6 +146,18 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
                 ", Title: " + e.getTitle() + ", Description: " + e.getDescription());
         c.getContactList().getContact(e.getSenderID()).setXstatus(new XStatusConstants(e.getXStatus(), e.getTitle(), e.getDescription()));
     }
+    
+    /**
+     * Ошибка в snac группе (?,?)
+     * @param family
+     * @param subTupe
+     * @param errorCode 
+     */
+
+    public void errorNotification(int family, int subTupe, int errorCode) {
+        System.err.println("This is an error notification snac (" + family + "," + subTupe  + 
+                ").\nMessage: " + new ErrorConstants(errorCode).toString());
+    }     
     
     /**
      * Запрос х-статуса
@@ -299,8 +322,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
      */
 
     public void isLoadedContactList() {
-        System.out.println("Contact list is loaded.");
-        System.out.println(myContactList());
+        System.out.println("Contact list is loaded.\n" + myContactList());
     }
     
     /**
@@ -309,8 +331,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
      */
 
     public void onSsiAck(SsiAckEvent e) {
-        System.out.println("On ssi modifying ask:");
-        System.out.println("(" + e.getResults().getCode() + ") " + e.getResults().toString());    
+        System.out.println("On ssi modifying ask: (" + e.getResults().getCode() + ") " + e.getResults().toString());    
     }
     
     /**
@@ -320,6 +341,14 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
      */
     
     public void addContact(String sn, String group){
+        Group g = c.getContactList().getGroup(group);
+        if(g == null){
+            return;// нет такой группы
+        }
+        if(g.contactsCount() == MAX_CONTACTS_IN_GROUP){
+            return;// группа заполнена
+        }
+        // check contact
         c.getContactList().checkContact(sn, group);
     }
     
@@ -333,10 +362,230 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
     }
     
     /**
+     * Переминовать контакт
+     * @param sn
+     * @param newNick 
+     */
+    
+    public void renameContact(String sn, String newNick){
+        c.getContactList().renameContact(sn, newNick);
+    }
+    
+    /**
+     * Переместить контакт в группу
+     * @param sn
+     * @param newGroup - новая группа для контакта
+     */
+    
+    public void changeContactGroup(String sn, String newGroup){
+        Group g = c.getContactList().getGroup(newGroup);
+        if(g == null){
+            return;// нет такой группы
+        }     
+        if(g.contactsCount() == MAX_CONTACTS_IN_GROUP){
+            return;// группа заполнена
+        }        
+        c.getContactList().changeContactGroup(sn, g);
+    }
+    
+    /**
+     * Создать группу
+     * @param name 
+     */
+    
+    public void addGroup(String name){
+        Group g = c.getContactList().getGroup(name);
+        if(g != null){
+            return;// уже создали
+        }    
+        c.getContactList().addGroup(name);
+    }
+    
+    /**
+     * Удалить группу С КОНТАКТАМИ
+     * @param name 
+     */
+    
+    public void removeGroup(String name){
+        Group g = c.getContactList().getGroup(name);
+        if(g == null){
+            return;// нет такой группы
+        }     
+        c.getContactList().removeGroup(g);
+    }
+    
+    
+    /**
+     * Удалить группу
+     * Перед удалением перенесет контакты в группу name1
+     * @param name
+     * @param name1 
+     */
+    
+    public void removeGroup(String name, String name1){
+        Group g = c.getContactList().getGroup(name);
+        Group g1 = c.getContactList().getGroup(name1);
+        if(g == null || g1 == null){
+            return;// нет такой группы
+        }   
+        c.getContactList().removeGroup(g, g1);
+    }
+    
+    /**
+     * Переминовать группу
+     * @param group
+     * @param newName 
+     */
+    
+    public void renameGroup(String group, String newName){
+        Group g = c.getContactList().getGroup(group);
+        if(g == null){
+            return;// нет такой группы
+        }             
+        c.getContactList().renameGroup(g, newName);
+    }
+    
+    /**
+     * Полностью очистит контакт лист, удалит все группы с контактами!!!
+     */
+    
+    public void clearContactList(){
+        for(Group group : c.getContactList().getGroups().values()){
+            removeGroup(group.getName());
+        }
+    }    
+    
+    /**
+     * Добавим контакт в "список"
+     * @param sn
+     * @param list 
+     */
+    
+    public void addSsiList(String sn, int list){
+        switch(list){
+            case SsiConstants.TYPE_VISIBLE:
+                 c.getContactList().addList(sn, SsiConstants.TYPE_VISIBLE);
+            break;
+            case SsiConstants.TYPE_INVISIBLE:               
+                 c.getContactList().addList(sn, SsiConstants.TYPE_INVISIBLE);
+            break;
+            case SsiConstants.TYPE_IGNORE_LIST:
+                 c.getContactList().addList(sn, SsiConstants.TYPE_IGNORE_LIST);
+            break;                
+        }
+    }
+    
+    /**
+     * Удалим контакт из "списока"
+     * @param sn
+     * @param list 
+     */
+    
+    public void removeSsiList(String sn){
+        c.getContactList().removeList(sn);
+    } 
+    
+    /**
+     * Пользователь разрешил добавить его в кл
+     * @param e 
+     */
+
+    public void onFutureAuth(FutureAuthEvent e) {
+        System.out.println(e.getSn() + " allowed to add it to the contact list.\nMessage: " + e.getMessage());
+    }
+    
+    /**
+     * Ответ на наш запрос авторизации
+     * @param e 
+     */
+
+    public void onAuthReply(AuthReplyEvent e) {
+        if(e.isAuth()){
+            System.out.println(e.getSn() + " has authorized us.\nMessage: " + e.getMessage());
+        }else{
+            System.out.println(e.getSn() + " refused to authorize.\nMessage: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Контакт попросил у нас авторизацию
+     * @param e 
+     */
+
+    public void onAuthRequest(AuthRequestEvent e) {
+        System.out.println(e.getSn() + " request have authorization.\nMessage: " + e.getMessage());
+        c.getContactList().sendAuthReply(e.getSn(), "You are authorized!", true);
+    }
+        
+    /**
+     * Отправить вас добавили
+     * @param sn 
+     */
+
+    public void sendYouWereAdded(String sn) {
+        c.getContactList().sendYouWereAdded(sn);
+    }
+    
+    /**
+     * Запрос авторизации
+     * @param sn
+     * @param message 
+     */
+
+    public void sendAuthRequest(String sn, String message) {
+        c.getContactList().sendAuthRequest(sn, message);
+    }
+    
+    /**
+     * Ответ на запрос авторизации
+     * @param sn
+     * @param message
+     * @param auth 
+     */
+
+    public void sendAuthReply(String sn, String message, boolean auth) {
+        c.getContactList().sendAuthReply(sn, message, auth);
+    }
+    
+    /**
+     * Разрешить контакту добавить нас
+     * @param sn
+     * @param message 
+     */
+
+    public void sendFutureAuth(String sn, String message) {
+        c.getContactList().sendFutureAuth(sn, message);
+    }
+    
+    /**
+     * Удалить себя из кл
+     * @param sn 
+     */
+
+    public void sendDeleteYourself(String sn) {
+        c.getContactList().sendDeleteYourself(sn);
+    }
+    
+    
+    /**
+     * Текстовый набор групп
+     * @return 
+     */
+    
+    public String myGroups(){
+        String s = "My groups:\n";
+        for(Group group : c.getContactList().getGroups().values()){
+            s += group.getName() + " (ID= " + group.getIdGroup() + ")";
+            s += "\n";
+        }
+        return s;
+    }
+    
+    /**
      * Представи текстовый контакт лист
      * @return 
      */    
-    
+
     public String myContactList(){
         if(!c.getOptionsConnect().isContactList()){
             return "Contact list is not loaded!";
@@ -345,29 +594,36 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         
         ContactList list = c.getContactList();
         
-        Iterator iterator  = list.sorterGroup().iterator();
-        
-        Integer f = null;
-        
         s.append("My contact list:");
-        s.append("\n\n");
-        
-        while (iterator.hasNext()) {
-            Contact c = (Contact) iterator.next();
-            if(!((Integer) c.getGroupID()).equals(f)){
-            s.append("Group: ").append(list.getGroup(c.getGroupID()).getName()); 
-            s.append("\n\n");   
+        s.append("\n\n");        
+        for(Group g : list.getGroups().values()){
+            s.append("Group: ").append(g.getName()).
+                    append("(").
+                    append(g.getIdGroup()).
+                    append(")"); 
+            s.append("\n\n");  
+            
+            if(g.isContacts()){
+            Iterator iterator  = list.sorterStatus(g).iterator();
+ 
+            while (iterator.hasNext()) {
+                Contact c = (Contact) iterator.next();            
+                s.append("Sn: ").append(c.getSn()).
+                        append(" Nick: ").append(c.getName()).
+                        append(" ").
+                        append("(authorization: ").
+                        append(c.isAuth() == true ? "required)" : "no required) ").
+                        append(list.getPrivacyList(c.getSn()) == null ? "" : list.getPrivacyList(c.getSn()).toString());
+                s.append("\n");   
+                s.append("\n");  
             }
-            s.append("Sn: ").append(c.getSn()).
-                    append(" Nick: ").append(c.getName()).
-                    append(" ").
-                    append("(authorization: ").
-                    append(c.isAuth() == true ? "required)" : "no required)");
-            s.append("\n");   
-            s.append("\n");   
-            f = c.getGroupID();
-        }        
-        
+            } else {
+                s.append("No contacts in the group");
+                s.append("\n");   
+                s.append("\n");                  
+            }
+          
+        }
         return s.toString();        
     }
     
@@ -391,6 +647,9 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
      */
 
     public void onSearchSn(MetaSearchSn e) {
+        // Искали контакт чтобы добавить его!
+        // Группу передали в запросе на поиск
+        // Следовательно добавим в эту группу
         if(e.isContactCheck()){
             if(e.isSearch()){
                 c.getContactList().addContact(e.getFoundUin(), e.getNickName(), e.getGroupID(), e.isAuth());
@@ -412,5 +671,5 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
             System.out.println("Contact "+ e.getFoundUin () +" not found.");
         }
     }
-
+    
 }

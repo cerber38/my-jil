@@ -25,6 +25,8 @@ public class OptionsConnecting {
     private XStatusConstants xstatus;
     private int privacyStatusId;
     private PrivacyStatusConstants privacyStatus;
+//    private boolean youWereAdded;
+    private boolean debug;
 
     /**
      * @return the statusFlag
@@ -186,5 +188,33 @@ public class OptionsConnecting {
     public void setPrivacyStatus(PrivacyStatusConstants privacyStatus) {
         this.privacyStatus = privacyStatus;
     }
+
+    /**
+     * @return the debug
+     */
+    public boolean isDebug() {
+        return debug;
+    }
+
+    /**
+     * @param debug the debug to set
+     */
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    /**
+     * @return the youWereAdded
+     */
+//    public boolean isYouWereAdded() {
+//        return youWereAdded;
+//    }
+
+    /**
+     * @param youWereAdded the youWereAdded to set
+     */
+//    public void setYouWereAdded(boolean youWereAdded) {
+//        this.youWereAdded = youWereAdded;
+//    }
        
 }

@@ -12,4 +12,6 @@ public interface ListenerConnection {
     
     public void breakConnection(String message);
     
+    public void errorNotification(int family, int subTupe, int errorCode);
+    
 }

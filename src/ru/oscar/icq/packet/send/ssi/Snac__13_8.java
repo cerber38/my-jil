@@ -4,9 +4,6 @@ package ru.oscar.icq.packet.send.ssi;
 import ru.oscar.icq.DataWork;
 import ru.oscar.icq.Flap;
 import ru.oscar.icq.Snac;
-import ru.oscar.icq.Tlv;
-import ru.oscar.icq.contacts.Contact;
-import ru.oscar.icq.contacts.Group;
 import ru.oscar.icq.util.StringUtil;
 
 /**
@@ -15,57 +12,25 @@ import ru.oscar.icq.util.StringUtil;
  * @author Kornackiy Alexsandr
  */
 
-public class Snac__13_8 extends Flap {
+public abstract class Snac__13_8 extends Flap {
+    
+    protected Snac snac;
 
-    public Snac__13_8(Contact c){
+    public Snac__13_8(String sn){
         super(CHANNEL2);
                
-        Snac snac = new Snac(0x13, 0x08, 0x00, 0x00, 0x00);
+        snac = new Snac(0x13, 0x08, 0x00, 0x00, 0x00);
+        
+        byte[] itemName = StringUtil.bytesOfStringUTF8(sn);
         
         //Length of the item name
-        snac.addSnacData(DataWork.putWord(c.getSn().length()));
+        snac.addSnacData(DataWork.putWord(itemName.length));
         //Item name string
-        snac.addSnacData(DataWork.putArray(StringUtil.bytesOfString(c.getSn())));
-        //Group ID#
-        snac.addSnacData(DataWork.putWord(c.getGroupID()));
-        //Item ID#
-        snac.addSnacData(DataWork.putWord(c.getId()));
-        //Type of item flag (see list bellow)
-        snac.addSnacData(DataWork.putWord(TYPE_CONTACT));
-        
-        byte[] nick = StringUtil.bytesOfStringUTF8(c.getName());
-        
-        snac.addSnacData(DataWork.putWord(8 + nick.length));
-        
-        Tlv tlv = new Tlv(0x0131);
-        tlv.addTlvData(DataWork.putArray(nick));
-        snac.addTlv(tlv);	
-
-        if(c.isAuth()){	
-            snac.addTlv(new Tlv(0x0066));     
-        }       
-             
-        addSnac(snac);
+        snac.addSnacData(DataWork.putArray(itemName));
     }
     
-    public Snac__13_8(Group g){
-        super(CHANNEL2);
-        
-        Snac snac = new Snac(0x13, 0x08, 0x00, 0x00, 0x00);
-        
-        //Length of the item name
-        snac.addSnacData(DataWork.putWord(g.getName().length()));
-        //Item name string
-        snac.addSnacData(DataWork.putArray(StringUtil.bytesOfString(g.getName())));      
-        //Group ID#
-        snac.addSnacData(DataWork.putWord(g.getIdGroup()));
-        //Item ID#
-        snac.addSnacData(DataWork.putWord(g.getItemID()));  
-        //Type of item flag (see list bellow)
-        snac.addSnacData(DataWork.putWord(TYPE_GROUP));  
-        
-        snac.addSnacData(DataWork.putWord(0x0000)); 
-        
+    public void finalizePacket() {
         addSnac(snac);
-    }
+    }       
+    
 }
