@@ -108,7 +108,8 @@ public class ContactList {
         //begin transaction
         connect.sendPacket(new Snac__13_11());
         //Add group to the server's contact list
-        connect.sendPacket(new AddsGroup(new Group(createRandomId(), name)));
+        int id = createRandomId();
+        connect.sendPacket(new AddsGroup(new Group(id, name)));
         //update groups
         if(groups.size() > 0){
             ArrayList groupsID = new ArrayList(groups.size()); 
@@ -118,7 +119,8 @@ public class ContactList {
             connect.sendPacket(new UpdateGroups(groupsID));   
         }
         //finish transaction
-        connect.sendPacket(new Snac__13_12());         
+        connect.sendPacket(new Snac__13_12()); 
+        groups.put(id, new Group(id, name));
     }
     
     /**
