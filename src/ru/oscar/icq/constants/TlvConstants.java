@@ -34,5 +34,10 @@ public interface TlvConstants {
     /* TLV.Type(0x0F) - client language */
     public static final int TLV_TYPE_CLIENT_LANGUAGE = 0x0F;  
     /* TLV.Type(0x0E) - client country */
-    public static final int TLV_TYPE_CLIENT_ID_COUNTRY = 0x0E;      
+    public static final int TLV_TYPE_CLIENT_ID_COUNTRY = 0x0E;          
+    /* TLV.Type(0x25) - password md5 hash */
+    public static final int TLV_TYPE_PASSWORD_MD5_HASH = 0x25;
+    
+    public static final int TLV_TYPE_UNKNOWN0_MD5_AUTH = 0x4B; 
+    public static final int TLV_TYPE_UNKNOWN1_MD5_AUTH = 0x5A;    
 }

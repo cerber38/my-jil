@@ -38,7 +38,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
     private static final int MAX_CONTACTS_IN_GROUP = 200;// TODO: не факт что 200
     
     private String sn = "596205";
-    private String password = ":P";         
+    private String password = "";         
     private String title = "title";
     private String description = "description";   
     
@@ -56,9 +56,9 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         options.setProtocolVersion(new ProtocolVersionConstants(ProtocolVersionConstants.DCP_ICQLITE));
         options.setCapabilities(new Capabilities(Capabilities.JIL));
         options.setContactList(true);
-        options.setDebug(false);
+        options.setDebug(true);
         options.setTyping(false);
-        options.setMD5uthorization(false);
+        options.setMD5uthorization(true);
         c = new Connect(sn, password, options);       
         c.putListenerConnection(this);
         c.putListenerMessages(this);

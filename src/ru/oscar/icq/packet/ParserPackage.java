@@ -5,8 +5,11 @@ import ru.oscar.core.PacketHandler;
 import ru.oscar.Flap;
 import ru.oscar.command.Command;
 import ru.oscar.core.Connect;
+import ru.oscar.icq.packet.login.AuthkeyReply;
+import ru.oscar.icq.packet.login.AuthkeyRequest;
 import ru.oscar.icq.packet.login.AuthorizationReply;
 import ru.oscar.icq.packet.login.AuthorizationRequest;
+import ru.oscar.icq.packet.login.SendHello;
 import ru.oscar.icq.packet.login.SendsCookie;
 import ru.oscar.util.Dumper;
 
@@ -31,17 +34,43 @@ public class ParserPackage extends PacketHandler{
     public boolean authorization(byte[] array){ 
         //MD5 based authorization
         if(connect.getOptionsConnect().isMD5uthorization()){
+            switch(number){
+                case 1:
+                    //Server response to the invitation
+                    connect.sendPacket(new SendHello());
+                    //Client sends md5-authkey request
+                    connect.sendPacket(new AuthkeyRequest(connect.getSN()));
+                    return false;
+                case 2:   
+                    //Server sends md5-authkey string
+                    AuthkeyReply a_key = new AuthkeyReply(array);
+                    a_key.notify(connect);
+                    return false;   
+                case 3: 
+                    //Server sends authorization reply
+                    AuthorizationReply a = new AuthorizationReply(array, true);
+                    a.notify(connect);
+                    return false;  
+                case 4: 
+                    //Client sends cookie
+                    connect.sendPacket(new SendsCookie((byte[])connect.getCookies().get(1)));
+                    connect.getCookies().clear();
+                    return false;                      
+            }
 
         }else{ //Channel 0x01 authorization       
             switch(number){
                 case 1:
+                    //Client send login request
                     connect.sendPacket(new AuthorizationRequest(connect.getSN(), connect.getPassword()));
                     return false;
                 case 2:
-                    AuthorizationReply a = new AuthorizationReply(array);
+                    //Server reply via BOS address / cookie
+                    AuthorizationReply a = new AuthorizationReply(array, false);
                     a.notify(connect);
                     return false;
                 case 3:
+                    //Client sends cookie
                     connect.sendPacket(new SendsCookie((byte[])connect.getCookies().get(1)));
                     connect.getCookies().clear();
                     return false;                   
@@ -53,11 +82,11 @@ public class ParserPackage extends PacketHandler{
 
     public void parser (byte[] array){ 
         number++;  
-        
+      
         if(!authorization(array)){
             return;// We have not authorized
         }   
-        
+
         Flap flap = new Flap(array, true);
         
         int familyID = flap.getSnac().getFamilyID();

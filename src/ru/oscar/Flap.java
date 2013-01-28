@@ -66,7 +66,7 @@ public class Flap extends BasicData implements ChannelsConstants, TlvConstants, 
     
     public void addFlapData(Data data){        
         putData(data);
-    }
+    }   
     
     public void addSnac(Snac snac){
         this.snac = snac;

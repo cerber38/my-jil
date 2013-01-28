@@ -20,8 +20,8 @@ public class AuthorizationReply extends Flap{
     private int error;
     private boolean authorized = false;     
     
-    public AuthorizationReply(byte array[]){   
-        super(array, false);
+    public AuthorizationReply(byte array[], boolean md5auth){   
+        super(array, md5auth);
 
         int index = 0;
         byte[] data = getDataArray();
