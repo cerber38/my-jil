@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import ru.oscar.icq.constants.SsiConstants;
-import ru.oscar.icq.core.Connect;
+import ru.oscar.core.Connect;
 import ru.oscar.icq.packet.send.meta.SearchByUin;
 import ru.oscar.icq.packet.send.ssi.AddsContact;
 import ru.oscar.icq.packet.send.ssi.AddsGroup;
@@ -17,18 +17,18 @@ import ru.oscar.icq.packet.send.ssi.AddsList;
 import ru.oscar.icq.packet.send.ssi.RemoveContact;
 import ru.oscar.icq.packet.send.ssi.RemoveGroup;
 import ru.oscar.icq.packet.send.ssi.RemoveList;
-import ru.oscar.icq.packet.send.ssi.Snac__13_11;
-import ru.oscar.icq.packet.send.ssi.Snac__13_12;
-import ru.oscar.icq.packet.send.ssi.Snac__13_14;
-import ru.oscar.icq.packet.send.ssi.Snac__13_16;
-import ru.oscar.icq.packet.send.ssi.Snac__13_18;
-import ru.oscar.icq.packet.send.ssi.Snac__13_1A;
-import ru.oscar.icq.packet.send.ssi.Snac__13_1C;
+import ru.oscar.icq.packet.send.ssi.BeginTransaction;
+import ru.oscar.icq.packet.send.ssi.FinishTransaction;
+import ru.oscar.icq.packet.send.ssi.SendFutureAuthorization;
+import ru.oscar.icq.packet.send.ssi.DeleteYourself;
+import ru.oscar.icq.packet.send.ssi.SendAuthorizationRequest;
+import ru.oscar.icq.packet.send.ssi.SendAuthorizationReply;
+import ru.oscar.icq.packet.send.ssi.YouWereAdded;
 import ru.oscar.icq.packet.send.ssi.UpdateContact;
 import ru.oscar.icq.packet.send.ssi.UpdateGroup;
 import ru.oscar.icq.packet.send.ssi.UpdateGroups;
-import ru.oscar.icq.util.StringUtil;
-import ru.oscar.icq.util.Util;
+import ru.oscar.util.StringUtil;
+import ru.oscar.util.Util;
 
 /**
  * Класс работает с контакт листом
@@ -90,13 +90,13 @@ public class ContactList {
 
     private void addContact(Contact contact){      
         //begin transaction
-        connect.sendPacket(new Snac__13_11());
+        connect.sendPacket(new BeginTransaction());
         //Add contacts to the server's contact list
         connect.sendPacket(new AddsContact(contact));
         // Update group
         connect.sendPacket(new UpdateGroup(groups.get(contact.getGroupID())));
         //finish transaction
-        connect.sendPacket(new Snac__13_12());             
+        connect.sendPacket(new FinishTransaction());             
     }   
     
     /**
@@ -106,7 +106,7 @@ public class ContactList {
 
     public void addGroup(String name){
         //begin transaction
-        connect.sendPacket(new Snac__13_11());
+        connect.sendPacket(new BeginTransaction());
         //Add group to the server's contact list
         int id = createRandomId();
         connect.sendPacket(new AddsGroup(new Group(id, name)));
@@ -119,7 +119,7 @@ public class ContactList {
             connect.sendPacket(new UpdateGroups(groupsID));   
         }
         //finish transaction
-        connect.sendPacket(new Snac__13_12()); 
+        connect.sendPacket(new FinishTransaction()); 
         groups.put(id, new Group(id, name));
     }
     
@@ -149,13 +149,13 @@ public class ContactList {
     public void removeContact(String sn){
         Contact c = getContact(sn); 
         //begin transaction
-        connect.sendPacket(new Snac__13_11());
+        connect.sendPacket(new BeginTransaction());
         //Remove contacts to the server's contact list
         connect.sendPacket(new RemoveContact(c));
         // Update group
         connect.sendPacket(new UpdateGroup(groups.get(c.getGroupID())));        
         //finish transaction
-        connect.sendPacket(new Snac__13_12()); 
+        connect.sendPacket(new FinishTransaction()); 
         groups.get(c.getGroupID()).removeContact(sn);
     }
     
@@ -166,7 +166,7 @@ public class ContactList {
     
     public void removeGroup(Group g){     
         //begin transaction
-        connect.sendPacket(new Snac__13_11());
+        connect.sendPacket(new BeginTransaction());
         //Remove group to the server's contact list
         connect.sendPacket(new RemoveGroup(g)); 
         //update groups
@@ -176,7 +176,7 @@ public class ContactList {
         }
         connect.sendPacket(new UpdateGroups(groupsID));     
         //finish transaction
-        connect.sendPacket(new Snac__13_12()); 
+        connect.sendPacket(new FinishTransaction()); 
         groups.remove(g.getIdGroup());
     }
     
@@ -194,7 +194,7 @@ public class ContactList {
             }
         }
         //begin transaction
-        connect.sendPacket(new Snac__13_11());
+        connect.sendPacket(new BeginTransaction());
         //Remove group to the server's contact list
         connect.sendPacket(new RemoveGroup(g)); 
         //update groups
@@ -204,7 +204,7 @@ public class ContactList {
         }
         connect.sendPacket(new UpdateGroups(groupsID));     
         //finish transaction
-        connect.sendPacket(new Snac__13_12()); 
+        connect.sendPacket(new FinishTransaction()); 
         groups.remove(g.getIdGroup());        
     }
     
@@ -310,7 +310,7 @@ public class ContactList {
     public void changeContactGroup(String sn, Group groupNew){
        Contact c = getContact(sn); 
        //begin transaction
-       connect.sendPacket(new Snac__13_11());  
+       connect.sendPacket(new BeginTransaction());  
        //Remove contacts to the server's contact list
        connect.sendPacket(new RemoveContact(c));       
        c.setGroupID(groupNew.getIdGroup());
@@ -320,7 +320,7 @@ public class ContactList {
        // Update group
        connect.sendPacket(new UpdateGroup(groups.get(c.getGroupID())));        
        //finish transaction
-       connect.sendPacket(new Snac__13_12());       
+       connect.sendPacket(new FinishTransaction());       
     }
    
     /**
@@ -329,7 +329,7 @@ public class ContactList {
      */
     
     public void sendYouWereAdded(String sn){
-        connect.sendPacket(new Snac__13_1C(sn));
+        connect.sendPacket(new YouWereAdded(sn));
     }
     
     /**
@@ -339,7 +339,7 @@ public class ContactList {
      */
     
     public void sendAuthRequest(String sn, String message){
-        connect.sendPacket(new Snac__13_18(sn, message));
+        connect.sendPacket(new SendAuthorizationRequest(sn, message));
     } 
     
     /**
@@ -350,7 +350,7 @@ public class ContactList {
      */
     
     public void sendAuthReply(String sn, String message, boolean auth){
-        connect.sendPacket(new Snac__13_1A(sn, message, auth));
+        connect.sendPacket(new SendAuthorizationReply(sn, message, auth));
     }     
     
     /**
@@ -360,7 +360,7 @@ public class ContactList {
      */
     
     public void sendFutureAuth(String sn, String message){
-        connect.sendPacket(new Snac__13_14(sn, message));
+        connect.sendPacket(new SendFutureAuthorization(sn, message));
     }  
     
     /**
@@ -369,7 +369,7 @@ public class ContactList {
      */
     
     public void sendDeleteYourself(String sn){
-        connect.sendPacket(new Snac__13_16(sn));
+        connect.sendPacket(new DeleteYourself(sn));
     }
     
     /**

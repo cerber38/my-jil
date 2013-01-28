@@ -5,11 +5,11 @@
 package ru.oscar.icq.packet.parse.meta;
 
 import java.util.EventObject;
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.core.api.events.MetaSearchSn;
-import ru.oscar.icq.core.api.listener.ListenerMetaInfo;
-import ru.oscar.icq.util.Dumper;
-import ru.oscar.icq.util.StringUtil;
+import ru.oscar.DataWork;
+import ru.oscar.icq.events.MetaSearchSn;
+import ru.oscar.icq.listener.ListenerMetaInfo;
+import ru.oscar.util.Dumper;
+import ru.oscar.util.StringUtil;
 
 /**
  * @author Kornackiy Alexsandr

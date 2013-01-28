@@ -1,8 +1,8 @@
 
 package ru.oscar.icq.packet.send.ssi;
 
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Tlv;
+import ru.oscar.DataWork;
+import ru.oscar.Tlv;
 import ru.oscar.icq.constants.PrivacyStatusConstants;
 
 /**
@@ -11,7 +11,7 @@ import ru.oscar.icq.constants.PrivacyStatusConstants;
  * Установится тока с загрузкой кл
  * @author Kornackiy Alexsandr
  */
-public class PrivacyStatus extends Snac__13_9 {
+public class PrivacyStatus extends SsiUpdate {
 
     public PrivacyStatus(PrivacyStatusConstants privateStatus, int itemID, boolean debug){
         super(itemID);

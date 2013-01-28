@@ -1,7 +1,7 @@
 
 package ru.oscar.icq.packet.send.ssi;
 
-import ru.oscar.icq.DataWork;
+import ru.oscar.DataWork;
 import ru.oscar.icq.contacts.Group;
 
 
@@ -9,7 +9,7 @@ import ru.oscar.icq.contacts.Group;
  * Добавить группу в контакт лист на сервере
  * @author Kornackiy Alexsandr
  */
-public class AddsGroup extends Snac__13_8 {
+public class AddsGroup extends SsiAddItem {
     
     public AddsGroup(Group g){
         super(g.getName());

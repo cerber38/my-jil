@@ -1,7 +1,7 @@
 
 package ru.oscar.icq.packet.send;
 
-import ru.oscar.icq.Flap;
+import ru.oscar.Flap;
 import ru.oscar.icq.constants.ChannelsConstants;
 
 /**

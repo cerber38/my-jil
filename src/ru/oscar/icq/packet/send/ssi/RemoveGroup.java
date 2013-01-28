@@ -2,17 +2,17 @@
 package ru.oscar.icq.packet.send.ssi;
 
 import java.util.Iterator;
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Tlv;
+import ru.oscar.DataWork;
+import ru.oscar.Tlv;
 import ru.oscar.icq.contacts.Contact;
 import ru.oscar.icq.contacts.Group;
-import ru.oscar.icq.util.StringUtil;
+import ru.oscar.util.StringUtil;
 
 /**
  * Удалить группу с контактами
  * @author Kornackiy Alexsandr
  */
-public class RemoveGroup  extends Snac__13_0A {
+public class RemoveGroup  extends SsiRemoveItem {
     
     public RemoveGroup(Group group){
         super(group.getName());

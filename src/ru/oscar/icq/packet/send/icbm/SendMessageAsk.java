@@ -1,10 +1,10 @@
 
 package ru.oscar.icq.packet.send.icbm;
 
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Flap;
-import ru.oscar.icq.Snac;
-import ru.oscar.icq.util.StringUtil;
+import ru.oscar.DataWork;
+import ru.oscar.Flap;
+import ru.oscar.Snac;
+import ru.oscar.util.StringUtil;
 
 /**
  * snac (4, 0B)

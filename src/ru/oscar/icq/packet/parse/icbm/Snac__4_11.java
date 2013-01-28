@@ -1,16 +1,16 @@
 
 package ru.oscar.icq.packet.parse.icbm;
 
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Flap;
+import ru.oscar.DataWork;
+import ru.oscar.Flap;
 import ru.oscar.icq.constants.MessageTypesConstants;
-import ru.oscar.icq.core.Connect;
-import ru.oscar.icq.core.api.events.XStatusEvent;
-import ru.oscar.icq.core.api.listener.ListenerXStatus;
-import ru.oscar.icq.core.cmd.DefaultCommand;
+import ru.oscar.core.Connect;
+import ru.oscar.icq.events.XStatusEvent;
+import ru.oscar.icq.listener.ListenerXStatus;
+import ru.oscar.command.DefaultCommand;
 import ru.oscar.icq.setting.Capabilities;
-import ru.oscar.icq.util.ByteUtil;
-import ru.oscar.icq.util.StringUtil;
+import ru.oscar.util.ByteUtil;
+import ru.oscar.util.StringUtil;
 
 /**
  * SNAC (4,11)

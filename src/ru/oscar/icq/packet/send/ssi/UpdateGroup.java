@@ -2,8 +2,8 @@
 package ru.oscar.icq.packet.send.ssi;
 
 import java.util.Iterator;
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Tlv;
+import ru.oscar.DataWork;
+import ru.oscar.Tlv;
 import ru.oscar.icq.contacts.Contact;
 import ru.oscar.icq.contacts.Group;
 
@@ -11,7 +11,7 @@ import ru.oscar.icq.contacts.Group;
  * Обновит группу в контакт листе на сервере
  * @author Kornackiy Alexsandr
  */
-public class UpdateGroup extends Snac__13_9 {
+public class UpdateGroup extends SsiUpdate {
     
     public UpdateGroup(Group group){
         super(group.getName());

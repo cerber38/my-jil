@@ -1,7 +1,7 @@
 
 package ru.oscar.icq.contacts;
 
-import ru.oscar.icq.core.api.events.FutureAuthEvent;
+import ru.oscar.icq.events.FutureAuthEvent;
 
 /**
  * Работа с контакт листом

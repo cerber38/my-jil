@@ -1,15 +1,15 @@
 
 package ru.oscar.icq.packet.send.ssi;
 
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Tlv;
+import ru.oscar.DataWork;
+import ru.oscar.Tlv;
 import ru.oscar.icq.contacts.Contact;
 
 /**
  * Добавить контакт в контакт лист на сервере
  * @author Kornackiy Alexsandr
  */
-public class AddsContact extends Snac__13_8 {
+public class AddsContact extends SsiAddItem {
     
     public AddsContact(Contact contact){
         super(contact.getSn());

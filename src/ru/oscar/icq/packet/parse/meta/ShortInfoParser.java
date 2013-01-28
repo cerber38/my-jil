@@ -2,10 +2,10 @@
 package ru.oscar.icq.packet.parse.meta;
 
 import java.util.EventObject;
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.core.api.events.MetaShortInfoEvent;
-import ru.oscar.icq.core.api.listener.ListenerMetaInfo;
-import ru.oscar.icq.util.StringUtil;
+import ru.oscar.DataWork;
+import ru.oscar.icq.events.MetaShortInfoEvent;
+import ru.oscar.icq.listener.ListenerMetaInfo;
+import ru.oscar.util.StringUtil;
 
 
 /**

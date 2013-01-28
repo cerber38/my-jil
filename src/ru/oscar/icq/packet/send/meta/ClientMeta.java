@@ -1,10 +1,10 @@
 
 package ru.oscar.icq.packet.send.meta;
 
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Flap;
-import ru.oscar.icq.Snac;
-import ru.oscar.icq.Tlv;
+import ru.oscar.DataWork;
+import ru.oscar.Flap;
+import ru.oscar.Snac;
+import ru.oscar.Tlv;
 import ru.oscar.icq.constants.MetaSubTypeConstants;
 import ru.oscar.icq.constants.MetaTypeConstants;
 
@@ -17,9 +17,10 @@ import ru.oscar.icq.constants.MetaTypeConstants;
 public abstract class ClientMeta extends Flap implements MetaTypeConstants, MetaSubTypeConstants {
     
     protected Snac snac;
-    protected Tlv tlv;       
+    protected Tlv tlv;     
+    private int lenght; 
     
-    public ClientMeta(int lenght, String sn, int type){
+    public ClientMeta(String sn, int type){
         super(CHANNEL2);
         
         snac = new Snac(0x15, 0x02, 0x00, 0x00);    
@@ -40,8 +41,8 @@ public abstract class ClientMeta extends Flap implements MetaTypeConstants, Meta
         tlv.addTlvData(DataWork.putWordLE(0x0000));
     }
     
-    public ClientMeta(int lenght, String sn, int type, int subType){
-        this(lenght, sn, type);
+    public ClientMeta(String sn, int type, int subType){
+        this(sn, type);
         
         //request sybtype (LE)
         tlv.addTlvData(DataWork.putWordLE(subType));
@@ -56,6 +57,13 @@ public abstract class ClientMeta extends Flap implements MetaTypeConstants, Meta
     public void finalizePacket() {
         snac.addTlv(tlv);
         addSnac(snac);
-    }        
-    
+    }
+
+    /**
+     * @param lenght the lenght to set
+     */
+    public void setLenght(int lenght) {
+        this.lenght = lenght;
+    }
+
 }

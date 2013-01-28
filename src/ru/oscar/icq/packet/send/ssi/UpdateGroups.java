@@ -2,14 +2,14 @@
 package ru.oscar.icq.packet.send.ssi;
 
 import java.util.ArrayList;
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Tlv;
+import ru.oscar.DataWork;
+import ru.oscar.Tlv;
 
 /**
  * Обновит список групп в контакт листе на сервере
  * @author Kornackiy Alexsandr
  */
-public class UpdateGroups extends Snac__13_9 {
+public class UpdateGroups extends SsiUpdate {
     
     public UpdateGroups(ArrayList groupsID){
         super("");

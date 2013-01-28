@@ -1,13 +1,13 @@
 
 package ru.oscar.icq.packet.send.icbm;
 
-import ru.oscar.icq.DataWork;
-import ru.oscar.icq.Tlv;
+import ru.oscar.DataWork;
+import ru.oscar.Tlv;
 import ru.oscar.icq.constants.MessageFlagsConstants;
 import ru.oscar.icq.constants.MessageTypesConstants;
-import ru.oscar.icq.core.Connect;
+import ru.oscar.core.Connect;
 import ru.oscar.icq.setting.Capabilities;
-import ru.oscar.icq.util.StringUtil;
+import ru.oscar.util.StringUtil;
 
 /**
  * snac (4,6)

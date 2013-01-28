@@ -1,7 +1,7 @@
 
 package ru.oscar.icq.packet.parse.meta;
 
-import ru.oscar.icq.core.Connect;
+import ru.oscar.core.Connect;
 
 /**
  * @author Kornackiy Alexsandr

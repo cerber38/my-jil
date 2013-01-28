@@ -2,8 +2,8 @@
 package ru.oscar.icq.packet.parse.meta;
 
 import java.util.EventObject;
-import ru.oscar.icq.core.Connect;
-import ru.oscar.icq.core.api.listener.ListenerMetaInfo;
+import ru.oscar.core.Connect;
+import ru.oscar.icq.listener.ListenerMetaInfo;
 
 /**
  * @author Kornackiy Alexsandr

@@ -1,14 +1,14 @@
 
 package ru.oscar.icq.packet.send.ssi;
 
-import ru.oscar.icq.DataWork;
+import ru.oscar.DataWork;
 import ru.oscar.icq.contacts.Contact;
 
 /**
  * Удалить контакт
  * @author Kornackiy Alexsandr
  */
-public class RemoveContact extends Snac__13_0A {
+public class RemoveContact extends SsiRemoveItem {
     
     public RemoveContact(Contact contact){
         super(contact.getSn());

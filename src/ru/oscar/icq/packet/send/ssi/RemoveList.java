@@ -1,14 +1,14 @@
 
 package ru.oscar.icq.packet.send.ssi;
 
-import ru.oscar.icq.DataWork;
+import ru.oscar.DataWork;
 import ru.oscar.icq.contacts.Contact;
 
 /**
  * Добавление контакт в "список"
  * @author Kornackiy Alexsandr
  */
-public class RemoveList extends Snac__13_0A {
+public class RemoveList extends SsiRemoveItem {
     
     public RemoveList(String sn, int itemID, int list){
         super(sn);
