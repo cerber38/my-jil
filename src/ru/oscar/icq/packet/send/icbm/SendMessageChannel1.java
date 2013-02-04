@@ -18,7 +18,7 @@ public class SendMessageChannel1 extends Message {
         // TLV.Type(0x02) - message data
         Tlv tlv2 = new Tlv(0x02);
 
-        Tlv tlv0501 = new Tlv(0x0501, 2, 0x0106);
+        Tlv tlv0501 = new Tlv(0x0501, 0x0106);
         
         Tlv tlv0101 = new Tlv(0x0101);
         tlv0101.addTlvData(DataWork.putWord(0x0002));

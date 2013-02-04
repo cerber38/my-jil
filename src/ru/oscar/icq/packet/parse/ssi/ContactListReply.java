@@ -99,8 +99,8 @@ public class ContactListReply extends DefaultCommand{
                             group.put(groupID, g);
                         }
 
-                        len -= tlv.getTlvLength() + 4;
-                        index += tlv.getTlvLength() + 4;
+                        len -= tlv.getTlvLength() + tlv.TLV_HEADER_SIZE;
+                        index += tlv.getTlvLength() + tlv.TLV_HEADER_SIZE;
                     }
                     break;
                 case SsiConstants.TYPE_GROUP:
@@ -121,8 +121,8 @@ public class ContactListReply extends DefaultCommand{
                         if (0x00CA == tlv.getTlvType()) {
                             privacyStatusId = itemID;
                         }    
-                        len -= tlv.getTlvLength() + 4;
-                        index += tlv.getTlvLength() + 4;                         
+                        len -= tlv.getTlvLength() + tlv.TLV_HEADER_SIZE;
+                        index += tlv.getTlvLength() + tlv.TLV_HEADER_SIZE;                         
                     }
                     break;
                 case SsiConstants.TYPE_VISIBLE:

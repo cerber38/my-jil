@@ -5,7 +5,7 @@ package ru.oscar.icq.constants;
  * @author Kornackiy Alexsandr
  */
 
-public interface TlvConstants {
+public interface LoginTlvConstants {
     
     /* TLV.Type(0x01) - screen name (uin) */
     public static final int TLV_TYPE_SCREEN_NAME = 0x01;

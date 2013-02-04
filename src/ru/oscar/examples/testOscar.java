@@ -20,6 +20,7 @@ import ru.oscar.icq.events.AuthReplyEvent;
 import ru.oscar.icq.events.AuthRequestEvent;
 import ru.oscar.icq.events.FutureAuthEvent;
 import ru.oscar.icq.events.MessageEvent;
+import ru.oscar.icq.events.MetaSetInfoAskEvents;
 import ru.oscar.icq.events.MetaShortInfoEvent;
 import ru.oscar.icq.events.MetaSearchSn;
 import ru.oscar.icq.events.SsiAckEvent;
@@ -31,6 +32,7 @@ import ru.oscar.icq.listener.ListenerMetaInfo;
 import ru.oscar.icq.listener.ListenerXStatus;
 import ru.oscar.icq.setting.Capabilities;
 import ru.oscar.core.OptionsConnect;
+import ru.oscar.icq.packet.send.meta.BlockMetaData;
 
 public class testOscar implements ListenerConnection, ListenerMessages, ListenerXStatus, ListenerContactList,
         ListenerMetaInfo, IContactList{
@@ -115,8 +117,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         if(cmd(e.getMessage())){
             return;
         }
-        System.out.println("Incoming message: " + e.getSenderID() + " >> " + e.getMessage()); 
-
+        System.out.println("Incoming message: " + e.getSenderID() + " >> " + e.getMessage());
     }
     
     public boolean cmd(String message){
@@ -125,7 +126,12 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         if(message.equalsIgnoreCase("mycl")){
             System.out.println(myContactList());
             return true;
-        } 
+        } else if(message.equalsIgnoreCase("setfulinfo")){            
+            BlockMetaData metaData = new BlockMetaData();
+            metaData.setNickName("JAVA");
+            IICQ.SetFullInfo(c, metaData);  
+            return true;
+        }
         
         return false;
     }
@@ -685,6 +691,19 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
                     "\nOnlline status = " + e.getOnlineStatus());
         } else {
             System.out.println("Contact "+ e.getFoundUin () +" not found.");
+        }
+    }
+    
+    /**
+     * Ответ на смену meta данных
+     * @param e 
+     */
+    
+    public void onSetInfoAsk(MetaSetInfoAskEvents e) {
+        if(e.isSetInfo()){
+            System.out.println("Information successfully changed.");
+        }else{
+            System.out.println("Information is not changed.");
         }
     }
     

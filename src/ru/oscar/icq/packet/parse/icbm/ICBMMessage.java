@@ -90,7 +90,7 @@ public class ICBMMessage extends DefaultCommand{
             /*TLV.Type(0x0F) - online time*/
             /*TLV.Type(0x03) - signon time*/
             /*TLV.Type(0x02) - create time*/ 
-            index += tlv.getTlvLength() + 4;
+            index += tlv.getTlvLength() + tlv.TLV_HEADER_SIZE;
         }
         if(messageChannel == 1){
             parseChannel_1(index, data);
@@ -130,7 +130,7 @@ public class ICBMMessage extends DefaultCommand{
         
         /*array of required capabilities*/
         Tlv capabilitiesData = new Tlv(data, position);
-        position += 4 + capabilitiesData.getTlvLength();
+        position += capabilitiesData.getTlvLength() + capabilitiesData.TLV_HEADER_SIZE;
         
         /*message*/
         Tlv MessageData = new Tlv(data, position);
@@ -214,7 +214,7 @@ public class ICBMMessage extends DefaultCommand{
 //                            System.err.println("\n" + Dumper.dump(hereMessage, true));
                         break;                             
             }            
-        position += exDataTlv.getTlvLength() + 4;    
+        position += exDataTlv.getTlvLength() + exDataTlv.TLV_HEADER_SIZE;    
         }   
         
         if (hereMessage == null/* || dataFile*/) { 

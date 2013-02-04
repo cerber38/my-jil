@@ -13,8 +13,10 @@ import ru.oscar.icq.packet.send.icbm.SendMessageChannel2;
 import ru.oscar.icq.packet.send.icbm.SendMessageChannel4;
 import ru.oscar.icq.packet.send.icbm.XStatusRequest;
 import ru.oscar.icq.packet.send.location.SetUserInformation;
+import ru.oscar.icq.packet.send.meta.BlockMetaData;
 import ru.oscar.icq.packet.send.meta.RequestShortInfo;
 import ru.oscar.icq.packet.send.meta.SearchByUin;
+import ru.oscar.icq.packet.send.meta.SetFullInfo;
 import ru.oscar.icq.packet.send.ssi.PrivacyStatus;
 
 /**
@@ -137,6 +139,16 @@ public class IICQ {
     
     public static void requestSearchByUin(Connect connect, String userId) {
         connect.sendPacket(new SearchByUin(userId, connect.getSN(), -1));
-    }       
+    }   
+    
+    /**
+     * Меняет информацию
+     * @param connect
+     * @param metaData 
+     */
+    
+    public static void SetFullInfo(Connect connect, BlockMetaData metaData) {
+        connect.sendPacket(new SetFullInfo(connect.getSN(), metaData));
+    }
     
 }

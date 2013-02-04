@@ -4,7 +4,7 @@ package ru.oscar.icq.packet.login;
 import ru.oscar.DataWork;
 import ru.oscar.Flap;
 import ru.oscar.Tlv;
-import ru.oscar.icq.constants.TlvConstants;
+import ru.oscar.icq.constants.LoginTlvConstants;
 import ru.oscar.core.Connect;
 import ru.oscar.util.StringUtil;
 
@@ -29,19 +29,19 @@ public class AuthorizationReply extends Flap{
         while(index < data.length){
             Tlv tlv = new Tlv(data, index);            
             switch(tlv.getTlvType()){               
-                case TlvConstants.TLV_TYPE_RECONNECT_HERE:
+                case LoginTlvConstants.TLV_TYPE_RECONNECT_HERE:
                     bosServerAddress = StringUtil.stringOfBytes(tlv.getDataArray());                   
                     break;
-                case TlvConstants.TLV_TYPE_AUTHORIZATION_COOKIE:
+                case LoginTlvConstants.TLV_TYPE_AUTHORIZATION_COOKIE:
                     // если есть куки, то мы авторизованны
                     authorized = true;
                     cookie = tlv.getDataArray();
                     break; 
-                case TlvConstants.TLV_TYPE_ERROR_SUBCODE:
+                case LoginTlvConstants.TLV_TYPE_ERROR_SUBCODE:
                     error = DataWork.getWord(tlv.getDataArray(), 0); 
                     break;                    
             }
-            index += tlv.getTlvLength() + 4;
+            index += tlv.getTlvLength() + tlv.TLV_HEADER_SIZE;
         }
         
     }

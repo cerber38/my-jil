@@ -31,6 +31,9 @@ public class MetaInfoParserFactory implements MetaTypeConstants, MetaSubTypeCons
                                 case 0x019A:// serch by uin
                                     parser = new SearchSnParse();
                                     break;
+                                case SERVER_ACK_FOR_FULLINFO:
+                                    parser = new MetaSetInfoAsk();
+                                    break;
                         }
                         break;
         }        

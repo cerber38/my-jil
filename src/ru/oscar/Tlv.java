@@ -10,18 +10,20 @@ import ru.oscar.util.StringUtil;
 
 public class Tlv extends BasicData { 
     
-    private final int TLV_HEADER_SIZE = 4;
+    public final int TLV_HEADER_SIZE = 4;
     
     private int tlvType;
     private int tlvLength;
     
     public Tlv(int type) {
         putHeader(DataWork.putWord(type));
+        tlvType = type;
         modifyHeader = true;
     }
     
     public Tlv(int tlvType, Data data) {
-        this(tlvType);      
+        this(tlvType);  
+        tlvLength += data.getDataLength();
         putData(data);
     }
     
@@ -30,14 +32,8 @@ public class Tlv extends BasicData {
     }
     
     public Tlv(int tlvType, int value) {
-        this(tlvType);       
-        putData(DataWork.putWord(value));      
-    }
-    
-    public Tlv(int tlvType, int len, int value) {
-        this(tlvType);
-        putData(DataWork.putWord(value));
-    }    
+        this(tlvType, DataWork.putWord(value));            
+    }      
     
     public Tlv(byte[] array, int index){
         tlvType = DataWork.getWord(array, index); 
@@ -58,10 +54,12 @@ public class Tlv extends BasicData {
     }    
     
     public void addTlvData(Data data){
+        tlvLength += data.getDataLength();
         putData(data);
     }    
     
     public void addTlvtoTlv(Tlv tlv){
+        tlvLength += tlv.getTlvLength() + TLV_HEADER_SIZE;
         putData(new Data(tlv.getByteArray()));
     }
     
