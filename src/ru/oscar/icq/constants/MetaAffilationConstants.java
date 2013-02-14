@@ -31,6 +31,7 @@ public class MetaAffilationConstants {
     private static HashMap<Integer, String> map = new HashMap<Integer, String>();
     
     private int affiliation;
+    private String description;
     
     static {
           map.put(UNSPECIFIED, "Unspecified");
@@ -56,8 +57,9 @@ public class MetaAffilationConstants {
           map.put(OTHER, "Other");
     }    
 
-    public MetaAffilationConstants(int affiliation) {
+    public MetaAffilationConstants(int affiliation, String description) {
         this.affiliation = affiliation;
+        this.description = description;
     }  
     
     public int getAffiliation() {
@@ -70,6 +72,13 @@ public class MetaAffilationConstants {
 
     public static String[] getAllAffiliations() {
         return (String[]) map.values().toArray(new String[map.size()]);
-    }    
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
     
 }

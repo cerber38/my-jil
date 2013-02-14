@@ -8,7 +8,7 @@ package ru.oscar.icq.constants;
 public interface MetaTlvConstants {
     public static final int META_TLV_USER_UIN = 0x0136;
     public static final int META_TLV_FIRST_NAME = 0x0140;
-    public static final int META_TLV_LASTNAME_NAME = 0x014A;  
+    public static final int META_TLV_LAST_NAME = 0x014A;  
     public static final int META_TLV_NICK_NAME = 0x0154;
     public static final int META_TLV_USER_EMAIL = 0x015E;
     public static final int META_TLV_AGE_RANGE_TO_SEARCH = 0x0168;

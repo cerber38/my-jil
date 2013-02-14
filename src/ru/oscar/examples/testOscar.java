@@ -32,6 +32,13 @@ import ru.oscar.icq.listener.ListenerMetaInfo;
 import ru.oscar.icq.listener.ListenerXStatus;
 import ru.oscar.icq.setting.Capabilities;
 import ru.oscar.core.OptionsConnect;
+import ru.oscar.icq.constants.MetaAffilationConstants;
+import ru.oscar.icq.constants.MetaCountryConstants;
+import ru.oscar.icq.constants.MetaGenderConstants;
+import ru.oscar.icq.constants.MetaInterestsConstants;
+import ru.oscar.icq.constants.MetaLanguagesConstants;
+import ru.oscar.icq.constants.MetaOccupationConstants;
+import ru.oscar.icq.constants.MetaTimeZoneConstants;
 import ru.oscar.icq.packet.send.meta.BlockMetaData;
 
 public class testOscar implements ListenerConnection, ListenerMessages, ListenerXStatus, ListenerContactList,
@@ -126,13 +133,10 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         if(message.equalsIgnoreCase("mycl")){
             System.out.println(myContactList());
             return true;
-        } else if(message.equalsIgnoreCase("setfulinfo")){            
-            BlockMetaData metaData = new BlockMetaData();
-            metaData.setNickName("JAVA");
-            IICQ.SetFullInfo(c, metaData);  
+        } else if(message.equalsIgnoreCase("setinfo")){ 
+            setMetaInfo();
             return true;
         }
-        
         return false;
     }
     
@@ -705,6 +709,109 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         }else{
             System.out.println("Information is not changed.");
         }
+    }
+    
+    /**
+     * Сменит данные в пользовательской анкете
+     */
+    
+    public void setMetaInfo(){
+            BlockMetaData metaData = new BlockMetaData();
+            /*Ник*/
+            metaData.setNickName("JIL");
+            /*Имя*/
+            metaData.setFirstName("");
+            /*Фамилия*/
+            metaData.setLastName("");
+            /*Мыло, показывать/не показывать*/
+            metaData.setUserEmail("", true);  
+            /*Ранг поиска*/
+            metaData.setAgeRangeSearch(new int[]{18, 30});
+            /*Возраст*/
+            metaData.setUserAge(22);
+            /*Пол*/
+            metaData.setUserGender(new MetaGenderConstants(MetaGenderConstants.MALE));
+            /*Владение языками*/
+            MetaLanguagesConstants[]  l = new MetaLanguagesConstants[]{
+                new MetaLanguagesConstants(MetaLanguagesConstants.RUSSIAN),
+                new MetaLanguagesConstants(MetaLanguagesConstants.TATAR),
+                new MetaLanguagesConstants(MetaLanguagesConstants.AZERBAIJANI)
+            };
+            metaData.setUserSpokenLanguage(l);
+            /*Город*/
+            metaData.setUserHomeCity("");
+            /*Район/Область*/
+            metaData.setUserHomeState("");
+            /*Страна*/
+            metaData.setUserHomeCountryCode(new MetaCountryConstants(MetaCountryConstants.UNSPECIFIED));
+            /*Адресс*/
+            metaData.setUserHomeStrreetAddress("");
+            /*Почтовый индекс*/
+            metaData.setUserHomeZipCode(0);    
+            /*Телефон*/
+            metaData.setUserHomePhoneNumber("");
+            /*Факс*/
+            metaData.setUserHomeFaxNumber("");
+            /*Мобильный телефон*/
+            metaData.setUserHomeCellularPhoneNumber("");
+            /*Работа*/
+            metaData.setUserWorkName("");
+            /*Отдел*/
+            metaData.setUserWorkDepartment("");
+            /*Должность*/
+            metaData.setUserWorkTitle("");
+            /*Профессия*/
+            metaData.setUserWorkOcupationCode(new MetaOccupationConstants(MetaOccupationConstants.UNSPECIFIED));
+            /*Рабочий адресс*/
+            metaData.setUserWorkStreetAddress("");
+            /*Город*/
+            metaData.setUserWorkCityName("");
+            /*Район/Область*/
+            metaData.setUserWorkStateName("");
+            /*Страна*/
+            metaData.setUserWorkCountryCode(new MetaCountryConstants(MetaCountryConstants.UNSPECIFIED));
+            /*Почтовый индекс*/
+            metaData.setUserWorkZipCode(0);
+            /*Телефон*/
+            metaData.setUserWorkPhoneNumber("");
+            /*Факс*/
+            metaData.setUserWorkFaxNumbere("");
+            /*Рабочая веб страница*/
+            metaData.setUserWorkWebPage("");           
+            MetaAffilationConstants[] a = new MetaAffilationConstants[]{
+                new MetaAffilationConstants(MetaAffilationConstants.FAN_CLUBS, "Fan Club"),
+                new MetaAffilationConstants(MetaAffilationConstants.SPORTS, "Sport")
+            };
+            metaData.setUserAffilation(a);
+            /*Интересы*/
+            MetaInterestsConstants[] i = new MetaInterestsConstants[]{
+                new MetaInterestsConstants(MetaInterestsConstants.CARS, "Авто"),
+                new MetaInterestsConstants(MetaInterestsConstants.GAMES, "Игры"),
+                new MetaInterestsConstants(MetaInterestsConstants.WOMEN, "Девушки"),
+                new MetaInterestsConstants(MetaInterestsConstants.MUSIC, "Музыка"),
+            };
+            metaData.setUserInterests(i);  
+            /*Веб страничка*/
+            metaData.setUserHomepage("");
+            /*В поиске онлайн?*/
+            metaData.setSearchOnlyOnline(true);
+            /*Дата дня рождения*/
+            metaData.setUserBirthday(new int[]{1990, 10, 9});
+            /*О себе*/
+            metaData.setUserNotes("Im java icq library");
+            /*Веб статус*/
+            metaData.setUserWebStatus(false);
+            /*Авторизация*/
+            metaData.setUserAuthorization(false);
+            /*Тайм зона*/
+            metaData.setUserGMT(new MetaTimeZoneConstants(-10));
+            /*Город где родился*/
+            metaData.setUserOriginallyCity("");
+            /*Район/Область*/
+            metaData.setUserOriginallyState("");
+            /*Страна*/
+            metaData.setUserOriginallyCountryCode(new MetaCountryConstants(MetaCountryConstants.UNSPECIFIED));
+            IICQ.setFullInfo(c, metaData);          
     }
     
 }

@@ -182,7 +182,15 @@ public class StringUtil {
             } catch (Exception e) {
                 return null;
             }
-        }  
+        } 
+        
+        public static byte[] bytesOfStringCP_1251(String data) {
+            try {
+                 return data.getBytes("CP1251");
+            } catch (Exception e) {
+                return null;
+            }
+        }        
         
         public static byte[] bytesOfString(String data){
             return data.getBytes();

@@ -147,7 +147,7 @@ public class IICQ {
      * @param metaData 
      */
     
-    public static void SetFullInfo(Connect connect, BlockMetaData metaData) {
+    public static void setFullInfo(Connect connect, BlockMetaData metaData) {
         connect.sendPacket(new SetFullInfo(connect.getSN(), metaData));
     }
     

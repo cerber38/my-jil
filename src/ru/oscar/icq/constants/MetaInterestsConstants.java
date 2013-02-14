@@ -116,9 +116,11 @@ public class MetaInterestsConstants {
     }
 
     private int interest;
+    private String description;
 
-    public MetaInterestsConstants(int interest) {
+    public MetaInterestsConstants(int interest, String description) {
         this.interest = interest;
+        this.description = description;
     }
 
     public int getInterest() {
@@ -149,4 +151,12 @@ public class MetaInterestsConstants {
     public static String[] getAllInterests() {
         return (String[]) map.values().toArray(new String[map.size()]);
     }
+    
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+    
 }
