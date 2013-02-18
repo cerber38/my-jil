@@ -4,7 +4,7 @@ package ru.oscar.icq.listener;
 /**
  * @author Kornackiy Alexsandr
  */
-public interface ListenerConnection {
+public interface ConnectionListener {
     
     public void successfulConnected();
     

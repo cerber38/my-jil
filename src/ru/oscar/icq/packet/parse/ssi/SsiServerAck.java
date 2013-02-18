@@ -6,7 +6,7 @@ import ru.oscar.Flap;
 import ru.oscar.icq.constants.SsiAckConstants;
 import ru.oscar.core.Connect;
 import ru.oscar.icq.events.SsiAckEvent;
-import ru.oscar.icq.listener.ListenerContactList;
+import ru.oscar.icq.listener.ContactListListener;
 import ru.oscar.command.DefaultCommand;
 
 /**
@@ -33,7 +33,7 @@ public class SsiServerAck extends DefaultCommand{
     public void notify(Connect connect) { 
         SsiAckEvent e = new SsiAckEvent(this);
         for (int i = 0; i < connect.getListenerContactList().size(); i++) {
-            ListenerContactList l = connect.getListenerContactList().get(i);
+            ContactListListener l = connect.getListenerContactList().get(i);
             l.onSsiAck(e);
         }          
     }

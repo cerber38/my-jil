@@ -6,7 +6,7 @@ import ru.oscar.Flap;
 import ru.oscar.icq.constants.MessageTypesConstants;
 import ru.oscar.core.Connect;
 import ru.oscar.icq.events.XStatusEvent;
-import ru.oscar.icq.listener.ListenerXStatus;
+import ru.oscar.icq.listener.XStatusListener;
 import ru.oscar.command.DefaultCommand;
 import ru.oscar.icq.setting.Capabilities;
 import ru.oscar.util.ByteUtil;
@@ -190,7 +190,7 @@ public class Snac__4_11 extends DefaultCommand{
         if (isResponseXStatus) {
             XStatusEvent e = new XStatusEvent(this);
             for (int i = 0; i < connection.getListenerXStatus().size(); i++) {
-                    ListenerXStatus l = (ListenerXStatus) connection.getListenerXStatus().get(i);
+                    XStatusListener l = (XStatusListener) connection.getListenerXStatus().get(i);
                     l.onXStatusResponse(e);
             }            
         }

@@ -122,6 +122,10 @@ public class MetaInterestsConstants {
         this.interest = interest;
         this.description = description;
     }
+    
+    public MetaInterestsConstants(int interest) {
+        this.interest = interest;
+    }    
 
     public int getInterest() {
         return interest;

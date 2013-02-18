@@ -5,7 +5,7 @@ import ru.oscar.DataWork;
 import ru.oscar.Flap;
 import ru.oscar.core.Connect;
 import ru.oscar.icq.events.FutureAuthEvent;
-import ru.oscar.icq.listener.ListenerContactList;
+import ru.oscar.icq.listener.ContactListListener;
 import ru.oscar.command.DefaultCommand;
 import ru.oscar.util.StringUtil;
 
@@ -44,7 +44,7 @@ public class FutureAuthorization extends DefaultCommand{
     public void notify(Connect connect) { 
          FutureAuthEvent e = new FutureAuthEvent(this);
          for (int i = 0; i < connect.getListenerMessages().size(); i++) {
-             ListenerContactList l = (ListenerContactList) connect.getListenerContactList().get(i);
+             ContactListListener l = (ContactListListener) connect.getListenerContactList().get(i);
              l.onFutureAuth(e);
          }        
     }

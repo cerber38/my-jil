@@ -7,7 +7,7 @@ import ru.oscar.icq.events.XStatusEvent;
  * @author Kornackiy Alexsandr
  */
 
-public interface ListenerXStatus {
+public interface XStatusListener {
     
     public void onXStatusResponse(XStatusEvent e);
 }

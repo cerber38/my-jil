@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import ru.oscar.icq.constants.SsiConstants;
 import ru.oscar.core.Connect;
-import ru.oscar.icq.packet.send.meta.SearchByUin;
+import ru.oscar.icq.packet.send.meta.RequestFindByUin;
 import ru.oscar.icq.packet.send.ssi.AddsContact;
 import ru.oscar.icq.packet.send.ssi.AddsGroup;
 import ru.oscar.icq.packet.send.ssi.AddsList;
@@ -130,7 +130,7 @@ public class ContactList {
      */
     
     public void checkContact(String sn, int groupID){         
-        connect.sendPacket(new SearchByUin(sn, connect.getSN(), groupID));
+        connect.sendPacket(new RequestFindByUin(sn, connect.getSN(), groupID));
     }
     
     public void checkContact(String sn, String groupName){ 

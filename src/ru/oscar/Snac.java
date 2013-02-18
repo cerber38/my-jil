@@ -26,18 +26,6 @@ public class Snac extends BasicData {
         putHeader(DataWork.putByte(flags1));
         putHeader(DataWork.putDWord(requestID));
         modifyHeader = false;
-    }
-    
-    public Snac(int familyID, int subTypeID, int flags0, int flags1){
-        this.familyID = familyID;
-        this.subTypeID = subTypeID;
-        this.flags0 = flags0;
-        this.flags1 = flags1;       
-        putHeader(DataWork.putWord(familyID));
-        putHeader(DataWork.putWord(subTypeID));
-        putHeader(DataWork.putByte(flags0));
-        putHeader(DataWork.putByte(flags1));
-        modifyHeader = false;
     }    
     
     public Snac(int familyID){
@@ -68,17 +56,6 @@ public class Snac extends BasicData {
     
     public void addTlv(Tlv tlv) {
         addSnacData(new Data(tlv.getByteArray()));
-    }
-    
-    public void finishHeader(int subTypeID, int flags0, int flags1, int requestID){
-        putHeader(DataWork.putWord(subTypeID));
-        putHeader(DataWork.putByte(flags0));
-        putHeader(DataWork.putByte(flags1));
-        putHeader(DataWork.putDWord(requestID));       
-    }
-    
-    public void finishHeader(int requestID){
-        putHeader(DataWork.putDWord(requestID));       
     }    
     
     public int getFamilyID(){

@@ -66,5 +66,6 @@ public interface MetaSubTypeConstants {
     public static final int SAVE_INFO_TLV_BASED              = 0x0C3A;
     public static final int CLIENT_SEND_SMS                  = 0x1482;
     public static final int CLIENT_SPAM_REPORT               = 0x2008;
-    
+    public static final int SERVER_FIND_BY_UIN               = 0x019A;
+      
 }

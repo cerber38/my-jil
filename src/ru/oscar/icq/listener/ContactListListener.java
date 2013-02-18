@@ -10,7 +10,7 @@ import ru.oscar.icq.events.SsiAckEvent;
  * @author Kornackiy Alexsandr
  */
 
-public interface ListenerContactList {
+public interface ContactListListener {
     
     public void isLoadedContactList(); 
     

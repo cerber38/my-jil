@@ -5,7 +5,7 @@ import ru.oscar.DataWork;
 import ru.oscar.Flap;
 import ru.oscar.core.Connect;
 import ru.oscar.icq.events.AuthRequestEvent;
-import ru.oscar.icq.listener.ListenerContactList;
+import ru.oscar.icq.listener.ContactListListener;
 import ru.oscar.command.DefaultCommand;
 import ru.oscar.util.Dumper;
 import ru.oscar.util.StringUtil;
@@ -45,7 +45,7 @@ public class AuthorizationRequest extends DefaultCommand{
     public void notify(Connect connect) { 
          AuthRequestEvent e = new AuthRequestEvent(this);
          for (int i = 0; i < connect.getListenerMessages().size(); i++) {
-             ListenerContactList l = (ListenerContactList) connect.getListenerContactList().get(i);
+             ContactListListener l = (ContactListListener) connect.getListenerContactList().get(i);
              l.onAuthRequest(e);
          }           
     }    

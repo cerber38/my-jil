@@ -15,7 +15,7 @@ import ru.oscar.icq.packet.parse.icbm.Snac__4_11;
 import ru.oscar.icq.packet.parse.icbm.ResponseParametersIcbm;
 import ru.oscar.icq.packet.parse.icbm.ICBMMessage;
 import ru.oscar.icq.packet.parse.location.LimitationsResponseLocation;
-import ru.oscar.icq.packet.parse.meta.MetaInfoResponse;
+import ru.oscar.icq.packet.parse.meta.MetaReply;
 import ru.oscar.icq.packet.parse.privacy.ResponseParametersPrivacy;
 import ru.oscar.icq.packet.parse.ssi.SsiServerAck;
 import ru.oscar.icq.packet.parse.ssi.FutureAuthorization;
@@ -60,7 +60,7 @@ public class SnacBuilder extends ClassLoader{
         command.put("19_21", new FutureAuthorization().getClass().getName());
         command.put("19_27", new AuthorizationReply().getClass().getName());
         command.put("19_25", new AuthorizationRequest().getClass().getName());
-        command.put("21_3", new MetaInfoResponse().getClass().getName());         
+        command.put("21_3", new MetaReply().getClass().getName());         
         // 1 10 rate limit
         // 4 12 ask
         commandignor = new ArrayList<String>(1);

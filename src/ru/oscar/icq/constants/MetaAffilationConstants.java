@@ -62,6 +62,10 @@ public class MetaAffilationConstants {
         this.description = description;
     }  
     
+    public MetaAffilationConstants(int affiliation) {
+        this.affiliation = affiliation;
+    }     
+    
     public int getAffiliation() {
         return affiliation;
     }   
@@ -80,5 +84,15 @@ public class MetaAffilationConstants {
     public String getDescription() {
         return description;
     }
+    
+
+    public String toString() {
+        if (map.containsKey(getAffiliation())) {
+            return (String) map.get(getAffiliation());
+        }
+        else {
+            return "";
+        }
+    }    
     
 }

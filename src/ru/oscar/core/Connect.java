@@ -8,11 +8,12 @@ import ru.oscar.Cookies;
 import ru.oscar.Flap;
 import ru.oscar.icq.constants.LoginErrorConstants;
 import ru.oscar.icq.contacts.ContactList;
-import ru.oscar.icq.listener.ListenerConnection;
-import ru.oscar.icq.listener.ListenerContactList;
-import ru.oscar.icq.listener.ListenerMessages;
-import ru.oscar.icq.listener.ListenerMetaInfo;
-import ru.oscar.icq.listener.ListenerXStatus;
+import ru.oscar.icq.listener.ConnectionListener;
+import ru.oscar.icq.listener.ContactListListener;
+import ru.oscar.icq.listener.MessagesListener;
+import ru.oscar.icq.listener.MetaAckListener;
+import ru.oscar.icq.listener.MetaInfoListener;
+import ru.oscar.icq.listener.XStatusListener;
 import ru.oscar.icq.packet.send.Goodbye;
 import ru.oscar.icq.packet.send.KeepAlive;
 import ru.oscar.icq.packet.send.ssi.RequestContactList;
@@ -43,11 +44,12 @@ public class Connect {
     
     private OptionsConnect options;
     
-    private ArrayList<ListenerConnection> listenersConnectArray = new ArrayList<ListenerConnection>(1);   
-    private ArrayList<ListenerMessages> listenersMessagesArray = new ArrayList<ListenerMessages>(1);   
-    private ArrayList<ListenerXStatus> listenersXStatusArray = new ArrayList<ListenerXStatus>(1); 
-    private ArrayList<ListenerContactList> listenersContactList = new ArrayList<ListenerContactList>(1);
-    private ArrayList<ListenerMetaInfo> listenersMetaInfo = new ArrayList<ListenerMetaInfo>(1); 
+    private ArrayList<ConnectionListener> listenersConnectArray = new ArrayList<ConnectionListener>(1);   
+    private ArrayList<MessagesListener> listenersMessagesArray = new ArrayList<MessagesListener>(1);   
+    private ArrayList<XStatusListener> listenersXStatusArray = new ArrayList<XStatusListener>(1); 
+    private ArrayList<ContactListListener> listenersContactList = new ArrayList<ContactListListener>(1);
+    private ArrayList<MetaInfoListener> listenersMetaInfo = new ArrayList<MetaInfoListener>(1); 
+    private ArrayList<MetaAckListener> listenersMetaAck = new ArrayList<MetaAckListener>(1);
     
     private ContactList contactList = null;
     
@@ -141,7 +143,7 @@ public class Connect {
     
     public void failureConnection(String message){
         for (int i = 0; i < getListenerConnection().size(); i++) {
-            ListenerConnection l = getListenerConnection().get(i);
+            ConnectionListener l = getListenerConnection().get(i);
             l.failureConnection(message);
         }        
     }
@@ -153,7 +155,7 @@ public class Connect {
     
     public void breakConnection(String message){
         for (int i = 0; i < getListenerConnection().size(); i++) {
-            ListenerConnection l = getListenerConnection().get(i);
+            ConnectionListener l = getListenerConnection().get(i);
             l.breakConnection(message);
         }        
     } 
@@ -164,7 +166,7 @@ public class Connect {
     
     public void successfulConnected(){
         for (int i = 0; i < getListenerConnection().size(); i++) {
-            ListenerConnection l = getListenerConnection().get(i);
+            ConnectionListener l = getListenerConnection().get(i);
             l.successfulConnected();
         }        
     }
@@ -175,7 +177,7 @@ public class Connect {
     
     public void isLoadedContactList(){
         for (int i = 0; i < getListenerContactList().size(); i++) {
-            ListenerContactList l = getListenerContactList().get(i);
+            ContactListListener l = getListenerContactList().get(i);
             l.isLoadedContactList();
         }        
     }   
@@ -189,7 +191,7 @@ public class Connect {
     
     public void errorNotification(int family, int subTupe, int errorCode){
         for (int i = 0; i < getListenerConnection().size(); i++) {
-            ListenerConnection l = getListenerConnection().get(i);
+            ConnectionListener l = getListenerConnection().get(i);
             l.errorNotification(family, subTupe, errorCode);
         }          
     }
@@ -293,70 +295,83 @@ public class Connect {
         return sequence;
     }
     
-    public void putListenerConnection(ListenerConnection listenersConnect){
+    public void putListenerConnection(ConnectionListener listenersConnect){
         listenersConnectArray.add(listenersConnect);
     }
     
-    public ArrayList<ListenerConnection> getListenerConnection(){
+    public ArrayList<ConnectionListener> getListenerConnection(){
         return listenersConnectArray;
     }
     
-    public void removeListenerConnection(ListenerConnection listenersConnect) {
+    public void removeListenerConnection(ConnectionListener listenersConnect) {
         int i = listenersConnectArray.indexOf(listenersConnect);
         if (i>=0) listenersConnectArray.remove(i);
     }
     
-    public void putListenerMessages(ListenerMessages listenerMessages){
+    public void putListenerMessages(MessagesListener listenerMessages){
         listenersMessagesArray.add(listenerMessages);
     }
     
-    public ArrayList<ListenerMessages> getListenerMessages(){
+    public ArrayList<MessagesListener> getListenerMessages(){
         return listenersMessagesArray;
     }
     
-    public void removeListenerMessages(ListenerMessages listenerMessages) {
+    public void removeListenerMessages(MessagesListener listenerMessages) {
         int i = listenersMessagesArray.indexOf(listenerMessages);
         if (i>=0) listenersMessagesArray.remove(i);
     }  
     
-    public void putListenerXStatus(ListenerXStatus listenerXStatus){
+    public void putListenerXStatus(XStatusListener listenerXStatus){
         listenersXStatusArray.add(listenerXStatus);
     }
     
-    public ArrayList<ListenerXStatus> getListenerXStatus(){
+    public ArrayList<XStatusListener> getListenerXStatus(){
         return listenersXStatusArray;
     }
     
-    public void removeListenerXStatus(ListenerXStatus listenerXStatus) {
+    public void removeListenerXStatus(XStatusListener listenerXStatus) {
         int i = listenersXStatusArray.indexOf(listenerXStatus);
         if (i>=0) listenersXStatusArray.remove(i);
     }
     
-    public void putListenerContactList(ListenerContactList listenerContactList){
+    public void putListenerContactList(ContactListListener listenerContactList){
         listenersContactList.add(listenerContactList);
     }
     
-    public ArrayList<ListenerContactList> getListenerContactList(){
+    public ArrayList<ContactListListener> getListenerContactList(){
         return listenersContactList;
     }
     
-    public void removeListenerContactList(ListenerContactList listenerContactList) {
+    public void removeListenerContactList(ContactListListener listenerContactList) {
         int i = listenersContactList.indexOf(listenerContactList);
         if (i>=0) listenersContactList.remove(i);
     }    
     
-    public void putListenerMetaInfo(ListenerMetaInfo listenerMetaInfo){
+    public void putListenerMetaInfo(MetaInfoListener listenerMetaInfo){
         listenersMetaInfo.add(listenerMetaInfo);
     }
     
-    public ArrayList<ListenerMetaInfo> getListenerMetaInfo(){
+    public ArrayList<MetaInfoListener> getListenerMetaInfo(){
         return listenersMetaInfo;
     }
     
-    public void removeListenerMetaInfo(ListenerMetaInfo listenerMetaInfo) {
-        int i = listenersMetaInfo.indexOf(listenerMetaInfo);
-        if (i>=0) listenersMetaInfo.remove(i);
-    }      
+    public void removeListenerMetaInfo(MetaAckListener listenerAckInfo) {
+        int i = listenersMetaAck.indexOf(listenerAckInfo);
+        if (i>=0) listenersMetaAck.remove(i);
+    }    
+    
+    public void putListenerMetaAck(MetaAckListener listenerAckInfo){
+        listenersMetaAck.add(listenerAckInfo);
+    }
+    
+    public ArrayList<MetaAckListener> getListenerMetaAck(){
+        return listenersMetaAck;
+    }
+    
+    public void removeListenerMetaAck(MetaAckListener listenerAckInfo) {
+        int i = listenersMetaAck.indexOf(listenerAckInfo);
+        if (i>=0) listenersMetaAck.remove(i);
+    }       
 
     /**
      * @return the contactList

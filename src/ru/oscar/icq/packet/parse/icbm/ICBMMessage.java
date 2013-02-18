@@ -1,19 +1,20 @@
 
 package ru.oscar.icq.packet.parse.icbm;
 
+import java.util.Date;
 import ru.oscar.DataWork;
 import ru.oscar.Flap;
 import ru.oscar.Tlv;
 import ru.oscar.icq.constants.MessageTypesConstants;
 import ru.oscar.core.Connect;
 import ru.oscar.icq.events.MessageEvent;
-import ru.oscar.icq.listener.ListenerMessages;
+import ru.oscar.icq.listener.MessagesListener;
 import ru.oscar.command.DefaultCommand;
+import ru.oscar.icq.events.OfflineMessageEvent;
 import ru.oscar.icq.packet.send.icbm.SendMessageAsk;
 import ru.oscar.icq.packet.send.icbm.SendXStatus;
 import ru.oscar.icq.setting.Capabilities;
 import ru.oscar.util.ByteUtil;
-import ru.oscar.util.Dumper;
 import ru.oscar.util.StringUtil;
 
 /**
@@ -47,6 +48,9 @@ public class ICBMMessage extends DefaultCommand{
     private boolean isUTF8 = false;    
     private boolean isRequestXStatus = false; 
     private boolean isRequestAwayMessage = false;
+    private boolean isOfflineMessage = false;
+            
+    private Date messageDate;        
     
     public ICBMMessage(){
         super();    
@@ -109,11 +113,17 @@ public class ICBMMessage extends DefaultCommand{
                     senderID, protocolVersion, msgSeqNum, msgType, msgFlag));
         }   
         
-        if (isPlainMessage && !isStopping){
+        if (isPlainMessage){
              MessageEvent e = new MessageEvent(this);
              for (int i = 0; i < connect.getListenerMessages().size(); i++) {
-                 ListenerMessages l = (ListenerMessages) connect.getListenerMessages().get(i);
+                 MessagesListener l = (MessagesListener) connect.getListenerMessages().get(i);
                  l.onIncomingMessage(e);
+             }
+         } else if (isOfflineMessage){
+             OfflineMessageEvent e = new OfflineMessageEvent(this);
+             for (int i = 0; i < connect.getListenerMessages().size(); i++) {
+                 MessagesListener l = (MessagesListener) connect.getListenerMessages().get(i);
+                 l.onOfflineMessage(e);   
              }
         } else if (isRequestXStatus && !isStopping && connect.getOptionsConnect().getPrivacyStatus().getCode() != 2){
             connect.sendPacket(new SendXStatus(time, cookies, senderID, connect.getSN(),
@@ -148,7 +158,24 @@ public class ICBMMessage extends DefaultCommand{
             message = StringUtil.ucs2beByteArrayToString(data, position, msgLen - 4);
         }else{
             message = StringUtil.byteArrayWin1251ToString(data, position, msgLen - 4);
-       }       
+       } 
+        position += msgLen;
+        position += 36;
+        while(position < data.length){
+            Tlv tlv = new Tlv(data, position);
+            switch(tlv.getTlvType()){ 
+                case 0x16:
+                   byte[] array = tlv.getDataArray(); 
+                   long messageTime = ByteUtil.toLong(array);
+                   messageDate = new Date(messageTime*1000);  
+                break;
+                case 0x06: 
+                    isOfflineMessage = true;
+                    isPlainMessage = false;
+                break;    
+            }
+            position += tlv.getTlvLength() + tlv.TLV_HEADER_SIZE;
+        }
     }    
     
     private void parseChannel_2(int position, byte[] data){
@@ -390,27 +417,24 @@ public class ICBMMessage extends DefaultCommand{
      */
     public String getMessage() {
         return message;
+    }  
+
+    /**
+     * @return the messagedate
+     */
+    public Date getMessageDate() {
+        // TODO: пока так
+        if(!isOfflineMessage) {
+            return new Date(System.currentTimeMillis());
+        }
+        return messageDate;
     }
-    
-    
- // qip просит статусное сообщение  
-//    Incoming Packet: (4,7)
-//2A 02 32 94 00 FE 00 04  00 07 00 00 9B 3B D6 05  *.2�.�......�;�.
-//01 43 7E 88 00 00 00 00  00 02 06 35 39 36 32 30  .C~�.......59620
-//35 00 00 00 07 00 01 00  02 00 51 00 06 00 04 10  5.........Q.....
-//01 00 00 00 05 00 04 33  33 71 64 00 1D 00 14 00  .......33qd.....
-//01 01 10 BF C0 A1 7B 2E  A2 3D 62 84 02 96 68 06  ...���{.�=b�.�h.
-//0F AA A3 00 0F 00 04 00  00 4C A5 00 03 00 04 4F  .��......L�....O
-//7C 03 0C 00 37 00 04 00  00 00 00 00 05 00 5E 00  |...7.........^.
-//00 01 43 7E 88 00 00 00  00 09 46 13 49 4C 7F 11  ..C~�.....F.IL..
-//D1 82 22 44 45 53 54 00  00 00 0A 00 02 00 01 00  т"DEST.........
-//0F 00 00 27 11 00 36 1B  00 0A 00 00 00 00 00 00  ...'..6.........
-//00 00 00 00 00 00 00 00  00 00 00 00 00 03 00 00  ................
-//00 00 B2 4B 0E 00 B2 4B  00 00 00 00 00 00 00 00  ..�K..�K........
-//00 00 00 00 E8 03 00 00  04 00 01 00 00 00 24 00  ....�.........$.
-//24 66 39 66 36 32 34 62  30 2D 37 65 35 62 2D 31  $f9f624b0-7e5b-1
-//31 65 31 2D 62 31 37 66  2D 65 33 37 65 64 64 36  1e1-b17f-e37edd6
-//38 39 36 35 61 00 0B 00  00 00 28 00 02 00 01 00  8965a.....(.....
-//13 00 01 82     
+
+    /**
+     * @return the isOfflineMessage
+     */
+    public boolean isOfflineMessage() {
+        return isOfflineMessage;
+    }
 
 }

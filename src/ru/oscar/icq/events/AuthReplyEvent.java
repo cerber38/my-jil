@@ -8,7 +8,7 @@ import ru.oscar.icq.packet.parse.ssi.AuthorizationReply;
  * @author Kornackiy Alexsandr
  */
 
-public class AuthReplyEvent extends EventObject {
+public class AuthReplyEvent extends EventObject {   
     
     public AuthReplyEvent(AuthorizationReply source){
         super(source);

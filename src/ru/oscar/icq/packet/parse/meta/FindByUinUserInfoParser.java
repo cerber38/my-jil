@@ -1,21 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package ru.oscar.icq.packet.parse.meta;
 
+import java.util.EventListener;
 import java.util.EventObject;
 import ru.oscar.DataWork;
-import ru.oscar.icq.events.MetaSearchSn;
-import ru.oscar.icq.listener.ListenerMetaInfo;
-import ru.oscar.util.Dumper;
+import ru.oscar.icq.events.MetaFindByUinUserInfoEvent;
+import ru.oscar.icq.listener.MetaInfoListener;
 import ru.oscar.util.StringUtil;
 
 /**
  * @author Kornackiy Alexsandr
  */
 
-public class SearchSnParse extends BaseMetaInfoParser {
+public class FindByUinUserInfoParser extends BaseMetaInfoParser {
     
     private boolean isSearch;
     private boolean isContactCheck;
@@ -35,23 +32,22 @@ public class SearchSnParse extends BaseMetaInfoParser {
 
     @Override
     protected EventObject getNewEvent() {
-        return new MetaSearchSn(this);
+        return new MetaFindByUinUserInfoEvent(this);
     }
 
     @Override
-    protected void sendMessage(ListenerMetaInfo listener, EventObject e) {
-        listener.onSearchSn((MetaSearchSn) e);
+    protected void sendMessage(EventListener listener, EventObject e) {
+        ((MetaInfoListener) listener).onFindByUinUserInfo((MetaFindByUinUserInfoEvent) e);
     }
 
-    public void parse(byte[] data, int index, int request) {
-        isContactCheck = (request != -1); 
+    public void parse(byte[] data, int index, int request){
+        isContactCheck = (request != 0x00); 
     /**
      * TODO: Важно!
      * Параметр передается при добавлении контакта.
      * В качестве параметра группа контакта. (getGroupID())
      * Если он найден добавим его в эту группу.
      * Пустой параметр значит обычный пойск.
-     * @return 
      */        
         if(isContactCheck){
             groupID = request;
@@ -77,7 +73,7 @@ public class SearchSnParse extends BaseMetaInfoParser {
         index += 2;        
 
         // Nickname
-        nickName = StringUtil.utf8ByteArrayToString(data, index, nickNameLen - 1);
+        nickName = StringUtil.byteArrayWin1251ToString(data, index, nickNameLen - 1);
         index += nickNameLen;
         
         // First Name lenght
@@ -85,7 +81,7 @@ public class SearchSnParse extends BaseMetaInfoParser {
         index += 2;
 
         // First Name
-        firstName = StringUtil.utf8ByteArrayToString(data, index, firstNameLen - 1);
+        firstName = StringUtil.byteArrayWin1251ToString(data, index, firstNameLen - 1);
         index += firstNameLen;  
         
         // Last Name lenght
@@ -93,7 +89,7 @@ public class SearchSnParse extends BaseMetaInfoParser {
         index += 2;
 
         // Last Name
-        lastName = StringUtil.utf8ByteArrayToString(data, index, lastNameLen - 1);
+        lastName = StringUtil.byteArrayWin1251ToString(data, index, lastNameLen - 1);
         index += lastNameLen; 
 
         // Email lenght
@@ -204,5 +200,5 @@ public class SearchSnParse extends BaseMetaInfoParser {
     public boolean isContactCheck() {
         return isContactCheck;
     }
-    
+
 }

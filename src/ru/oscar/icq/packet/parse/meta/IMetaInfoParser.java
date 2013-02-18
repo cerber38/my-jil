@@ -8,15 +8,22 @@ import ru.oscar.core.Connect;
  */
 
 public interface IMetaInfoParser {
-    
+	
     /**
-     * Парсер мета данных
+     * Осуществляет разбор сообщения и заполнение полей метаинформации
+     * 
      * @param data
      * @param index
-     * @param request 
+     * @param request - дополнительный параметр при запросе 
      */
-    public void parse(byte[] data, int index, int request);
-    
-    public void notify(Connect connection);
-    
+        public void parse(byte[] data, int index, int request);
+
+
+    /**
+     * Создаем событие и уведомляем о нем слушателей
+     * 
+     * @param connection
+     */
+        public void notifyEvent(Connect connection);
+
 }

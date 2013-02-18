@@ -1,6 +1,7 @@
 package ru.oscar.examples;
 
 import java.util.Iterator;
+import java.util.Map.Entry;
 import ru.oscar.icq.constants.DirectConnectConstants;
 import ru.oscar.icq.constants.ErrorConstants;
 import ru.oscar.icq.constants.MessageTypesConstants;
@@ -20,16 +21,23 @@ import ru.oscar.icq.events.AuthReplyEvent;
 import ru.oscar.icq.events.AuthRequestEvent;
 import ru.oscar.icq.events.FutureAuthEvent;
 import ru.oscar.icq.events.MessageEvent;
-import ru.oscar.icq.events.MetaSetInfoAskEvents;
-import ru.oscar.icq.events.MetaShortInfoEvent;
-import ru.oscar.icq.events.MetaSearchSn;
+import ru.oscar.icq.events.MetaAckEvent;
+import ru.oscar.icq.events.MetaAffilationsUserInfoEvent;
+import ru.oscar.icq.events.MetaBasicUserInfoEvent;
+import ru.oscar.icq.events.MetaEmailUserInfoEvent;
+import ru.oscar.icq.events.MetaFindByUinUserInfoEvent;
+import ru.oscar.icq.events.MetaInterestsUserInfoEvent;
+import ru.oscar.icq.events.MetaMoreUserInfoEvent;
+import ru.oscar.icq.events.MetaNoteUserInfoEvent;
+import ru.oscar.icq.events.MetaShortUserInfoEvent;
+import ru.oscar.icq.events.MetaWorkUserInfoEvent;
+import ru.oscar.icq.events.OfflineMessageEvent;
 import ru.oscar.icq.events.SsiAckEvent;
 import ru.oscar.icq.events.XStatusEvent;
-import ru.oscar.icq.listener.ListenerConnection;
-import ru.oscar.icq.listener.ListenerContactList;
-import ru.oscar.icq.listener.ListenerMessages;
-import ru.oscar.icq.listener.ListenerMetaInfo;
-import ru.oscar.icq.listener.ListenerXStatus;
+import ru.oscar.icq.listener.ConnectionListener;
+import ru.oscar.icq.listener.ContactListListener;
+import ru.oscar.icq.listener.MessagesListener;
+import ru.oscar.icq.listener.XStatusListener;
 import ru.oscar.icq.setting.Capabilities;
 import ru.oscar.core.OptionsConnect;
 import ru.oscar.icq.constants.MetaAffilationConstants;
@@ -38,11 +46,14 @@ import ru.oscar.icq.constants.MetaGenderConstants;
 import ru.oscar.icq.constants.MetaInterestsConstants;
 import ru.oscar.icq.constants.MetaLanguagesConstants;
 import ru.oscar.icq.constants.MetaOccupationConstants;
+import ru.oscar.icq.constants.MetaPostBackgroundConstants;
 import ru.oscar.icq.constants.MetaTimeZoneConstants;
+import ru.oscar.icq.listener.MetaAckListener;
+import ru.oscar.icq.listener.MetaInfoListener;
 import ru.oscar.icq.packet.send.meta.BlockMetaData;
 
-public class testOscar implements ListenerConnection, ListenerMessages, ListenerXStatus, ListenerContactList,
-        ListenerMetaInfo, IContactList{
+public class testOscar implements ConnectionListener, MessagesListener, XStatusListener, ContactListListener,
+        MetaInfoListener, MetaAckListener, IContactList{
     
     private static final int MAX_CONTACTS_IN_GROUP = 200;// TODO: не факт что 200
     
@@ -65,7 +76,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         options.setProtocolVersion(new ProtocolVersionConstants(ProtocolVersionConstants.DCP_ICQLITE));
         options.setCapabilities(new Capabilities(Capabilities.JIL));
         options.setContactList(true);
-        options.setDebug(true);
+        options.setDebug(false);
         options.setTyping(false);
         options.setMD5uthorization(true);
         c = new Connect(sn, password, options);       
@@ -74,6 +85,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         c.putListenerXStatus(this);
         c.putListenerContactList(this);
         c.putListenerMetaInfo(this);
+        c.putListenerMetaAck(this);
         c.connect();        
     }
     
@@ -135,6 +147,26 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
             return true;
         } else if(message.equalsIgnoreCase("setinfo")){ 
             setMetaInfo();
+            return true;
+        }else if(message.equalsIgnoreCase("offmessage")){ 
+            IICQ.requestOfflineMessages(c);
+            return true;
+        }else if(message.split(" ")[0].equalsIgnoreCase("search")){ 
+            requestFindByUinUserInfo(message.split(" ")[1]);
+             return true;
+        }else if(message.split(" ")[0].equalsIgnoreCase("shortinfo")){
+            requestShortUserInfo(message.split(" ")[1]);
+            return true;
+        }else if(message.split(" ")[0].equalsIgnoreCase("fullinfo")){
+            requestFullUserInfo(message.split(" ")[1]);
+        }else if(message.split(" ")[0].equalsIgnoreCase("addc")){
+            addContact(message.split(" ")[1], message.split(" ")[2]);
+            return true;
+        }else if(message.split(" ")[0].equalsIgnoreCase("delc")){
+            removeContact(message.split(" ")[1]);
+            return true;            
+        }else if(message.split(" ")[0].equalsIgnoreCase("message")){      
+            sendMessage(message.split(" ")[1], message.split(" ")[2], 1);
             return true;
         }
         return false;
@@ -203,12 +235,21 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
     }
     
     /**
-     * Поиск пользователя по uin
+     * Запрос полной о пользователе
      * @param sn 
      */
     
-    public void requestSearchByUin(String sn) {
-        IICQ.requestSearchByUin(c, sn);
+    public void requestFullUserInfo(String sn) {
+        IICQ.requestFullUserInfo(c, sn);
+    }    
+    
+    /**
+     * Поиск пользователя по uin 
+     * @param sn 
+     */
+    
+    public void requestFindByUinUserInfo(String sn) {
+        IICQ.requestFindByUinUserInfo(c, sn);
     }    
     
     /**
@@ -348,7 +389,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
 
     public void isLoadedContactList() {
         System.out.println("Contact list is loaded.");
-        System.out.println(myContactList());
+        //System.out.println(myContactList());
     }
     
     /**
@@ -657,22 +698,13 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
      * Ответ на запрос короткой информации о пользователе
      * @param e 
      */
-
-    public void onShortUserInfo(MetaShortInfoEvent e) {
-        System.out.println("Information:\n" +
-                "\nNick = " + e.getNickName() +
-                "\nFirst name = " + e.getFirstName() +
-                "\nLast name = " + e.getLastName() +
-                "\nLast email = " + e.getEmail() +
-                "\nAuth = " + e.isAuth());           
-    }
     
     /**
      * Результаты поиска
      * @param e 
      */
 
-    public void onSearchSn(MetaSearchSn e) {
+    public void onFindByUinUserInfo(MetaFindByUinUserInfoEvent e) {
         // Искали контакт чтобы добавить его!
         // Группу передали в запросе на поиск
         // Следовательно добавим в эту группу
@@ -698,18 +730,6 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
         }
     }
     
-    /**
-     * Ответ на смену meta данных
-     * @param e 
-     */
-    
-    public void onSetInfoAsk(MetaSetInfoAskEvents e) {
-        if(e.isSetInfo()){
-            System.out.println("Information successfully changed.");
-        }else{
-            System.out.println("Information is not changed.");
-        }
-    }
     
     /**
      * Сменит данные в пользовательской анкете
@@ -718,7 +738,7 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
     public void setMetaInfo(){
             BlockMetaData metaData = new BlockMetaData();
             /*Ник*/
-            metaData.setNickName("JIL");
+            metaData.setNickName("JIL2013");
             /*Имя*/
             metaData.setFirstName("");
             /*Фамилия*/
@@ -811,7 +831,117 @@ public class testOscar implements ListenerConnection, ListenerMessages, Listener
             metaData.setUserOriginallyState("");
             /*Страна*/
             metaData.setUserOriginallyCountryCode(new MetaCountryConstants(MetaCountryConstants.UNSPECIFIED));
-            IICQ.setFullInfo(c, metaData);          
+            IICQ.requestSetFullInfo(c, metaData);          
+    }
+    
+    /**
+     * Ответ на запрос оффлайн сообщений
+     * @param e 
+     */
+
+    public void onOfflineMessage(OfflineMessageEvent e) {
+        System.out.println("Offline message:\n" + e.getSendDate().toString() + "\n" + e.getSN() + " ~ " + e.getMessage() + "\n");
+    }
+
+    public void onShortUserInfo(MetaShortUserInfoEvent e) {
+        System.out.println("Short User Info: ");
+        System.out.println("  Nick Name = "  + e.getNickName());
+        System.out.println("  First Name = " + e.getFirstName());
+        System.out.println("  Last Name = "  + e.getLastName());
+        System.out.println("  Email = "      + e.getEmail());
+        System.out.println("  Auth = "       + e.isAuth());
+    }
+
+    public void onBasicUserInfo(MetaBasicUserInfoEvent e) {
+        System.out.println("Basic User Info: ");
+        System.out.println("  Nick Name = "  + e.getNickName());
+        System.out.println("  First Name = " + e.getFirstName());
+        System.out.println("  Last Name = "  + e.getLastName());
+        System.out.println("  Email = "      + e.getEmail());
+        System.out.println("  Home City = "  + e.getHomeCity());
+        System.out.println("  Home State = " + e.getHomeState());
+        System.out.println("  Home Phone = " + e.getHomePhone());
+        System.out.println("  Home Fax = "   + e.getHomeFax());
+        System.out.println("  Home Address = "  + e.getHomeAddress());
+        System.out.println("  Cell Phone = "  + e.getCellPhone());
+        System.out.println("  Zip = "         + e.getZipCode());
+        System.out.println("  Home Country = "  + e.getHomeCountry());
+        System.out.println("  GMT offset = "  + e.getTimeZone());
+        System.out.println("  Auth = "       + e.isAuth());
+        System.out.println("  WebAware = "       + e.isWebaware());
+        System.out.println("  DirectConnection = " + e.isDirectConnection());
+        System.out.println("  PublishPrimaryEmail = " + e.isPublishPrimaryEmail());
+    }
+
+    public void onEmailUserInfo(MetaEmailUserInfoEvent e) {
+        System.out.println("Email User Info: ");
+        for (int i = 0; i < e.getEmails().size(); i++)
+            System.out.println("Email: " + e.getEmails().get(i));
+    }
+
+    public void onWorkUserInfo(MetaWorkUserInfoEvent e) {
+        System.out.println("Work User Info: ");
+        System.out.println("  Work City = "  + e.getWorkCity());
+        System.out.println("  Work State = "  + e.getWorkState());
+        System.out.println("  Work Phone = "  + e.getWorkPhone());
+        System.out.println("  Work Fax = "  + e.getWorkFax());
+        System.out.println("  Work Address = "  + e.getWorkAddress());
+        System.out.println("  Work Zip = "  + e.getWorkZip());
+        System.out.println("  Work Country = "  + e.getWorkCountry());
+        System.out.println("  Work Company = "  + e.getWorkCompany());
+        System.out.println("  Work Department = "  + e.getWorkDepartment());
+        System.out.println("  Work Position = "  + e.getWorkPosition());
+        System.out.println("  Work WebPage = "  + e.getWorkWebPage());
+        System.out.println("  Work Occupation = "  + e.getWorkOccupation());
+    }
+
+    public void onInterestsUserInfo(MetaInterestsUserInfoEvent e) {
+        System.out.println("Interests User Info: ");
+        for (Iterator iter = e.getInterests().entrySet().iterator(); iter.hasNext();) {
+            Entry entry = (Entry) iter.next();
+            MetaInterestsConstants interests = (MetaInterestsConstants) entry.getKey();
+            System.out.println("Category: " + interests.toString() + " interest: " + entry.getValue());
+        }
+    }
+
+    public void onMoreUserInfo(MetaMoreUserInfoEvent e) {
+        System.out.println("More User Info");
+        System.out.println(" age = " + e.getAge());
+        System.out.println(" gender = " + e.getGender());
+        System.out.println(" homePage = " + e.getHomePage());
+        System.out.println(" birth = " + e.getBirth());
+        System.out.println(" languages:");
+        for (int i = 0; i < e.getLanguages().size(); i++) {
+            System.out.println(e.getLanguages().get(i));
+        }
+        System.out.println(" original City = " + e.getOriginalCity());
+        System.out.println(" original State = " + e.getOriginalState());
+        System.out.println(" original Country = " + e.getOriginalCountry());
+        System.out.println(" marital Status = " + e.getMaritalStatus());
+    }
+
+    public void onNotesUserInfo(MetaNoteUserInfoEvent e) {
+        System.out.println(" About info = " + e.getNote());
+    }
+
+    public void onAffilationsUserInfo(MetaAffilationsUserInfoEvent e) {
+        System.out.println("PostBackgrounds User Info: ");
+        for (Iterator iter = e.getPostBackgrounds().entrySet().iterator(); iter.hasNext();) {
+            Entry entry = (Entry) iter.next();
+            MetaPostBackgroundConstants postbackgrounds = (MetaPostBackgroundConstants) entry.getKey();
+            System.out.println("Category: " + postbackgrounds.toString() + " postbackground: " + entry.getValue());
+        }
+
+        System.out.println("Affilations User Info: ");
+        for (Iterator iter = e.getAffilations().entrySet().iterator(); iter.hasNext();) {
+            Entry entry = (Entry) iter.next();
+            MetaAffilationConstants affilations = (MetaAffilationConstants) entry.getKey();
+            System.out.println("Category: " + affilations.toString() + " affilations: " + entry.getValue());
+        }
+    }
+
+    public void onMetaAck(MetaAckEvent e) {
+        System.out.println("Meta ack = " + e.isOk());
     }
     
 }

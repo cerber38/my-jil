@@ -1,6 +1,8 @@
 
 package ru.oscar.icq;
 
+import java.util.ArrayList;
+import ru.oscar.Tlv;
 import ru.oscar.icq.constants.MessageTypesConstants;
 import ru.oscar.icq.constants.PrivacyStatusConstants;
 import ru.oscar.icq.constants.StatusConstants;
@@ -14,9 +16,11 @@ import ru.oscar.icq.packet.send.icbm.SendMessageChannel4;
 import ru.oscar.icq.packet.send.icbm.XStatusRequest;
 import ru.oscar.icq.packet.send.location.SetUserInformation;
 import ru.oscar.icq.packet.send.meta.BlockMetaData;
-import ru.oscar.icq.packet.send.meta.RequestShortInfo;
-import ru.oscar.icq.packet.send.meta.SearchByUin;
-import ru.oscar.icq.packet.send.meta.SetFullInfo;
+import ru.oscar.icq.packet.send.meta.RequestFindByUin;
+import ru.oscar.icq.packet.send.meta.RequestFullUserInfo;
+import ru.oscar.icq.packet.send.meta.RequestOfflineMessages;
+import ru.oscar.icq.packet.send.meta.RequestSetFullUserInfo;
+import ru.oscar.icq.packet.send.meta.RequestShortUserInfo;
 import ru.oscar.icq.packet.send.ssi.PrivacyStatus;
 
 /**
@@ -134,11 +138,27 @@ public class IICQ {
      */
     
     public static void requestShortUserInfo(Connect connect, String userId) {
-        connect.sendPacket(new RequestShortInfo(userId, connect.getSN()));
-    }    
+        connect.sendPacket(new RequestShortUserInfo(userId, connect.getSN()));
+    }   
     
-    public static void requestSearchByUin(Connect connect, String userId) {
-        connect.sendPacket(new SearchByUin(userId, connect.getSN(), -1));
+    /**
+     * Запрос полной информации
+     * @param connect
+     * @param userId 
+     */
+    
+    public static void requestFullUserInfo(Connect connect, String userId) {
+        connect.sendPacket(new RequestFullUserInfo(userId, connect.getSN()));
+    }
+    
+    /**
+     * Поиск пользователя по uin
+     * @param connect
+     * @param userId 
+     */
+    
+    public static void requestFindByUinUserInfo(Connect connect, String userId) {
+        connect.sendPacket(new RequestFindByUin(userId, connect.getSN(), 0x00));
     }   
     
     /**
@@ -147,8 +167,17 @@ public class IICQ {
      * @param metaData 
      */
     
-    public static void setFullInfo(Connect connect, BlockMetaData metaData) {
-        connect.sendPacket(new SetFullInfo(connect.getSN(), metaData));
+    public static void requestSetFullInfo(Connect connect, BlockMetaData metaData) {
+        ArrayList<Tlv> md =  metaData.getData();
+        connect.sendPacket(new RequestSetFullUserInfo(connect.getSN(), metaData.getDataLenght(), md));
     }
+    
+    /**
+     * Запрашиваем отправленные нам offline-сообщения
+     * @param connect
+     */
+    public static void requestOfflineMessages(Connect connect) {
+        connect.sendPacket(new RequestOfflineMessages(connect.getSN()));
+    }    
     
 }
