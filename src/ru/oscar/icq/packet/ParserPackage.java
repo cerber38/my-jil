@@ -100,6 +100,10 @@ public class ParserPackage extends PacketHandler{
         if(commands.isIgnor(familyID + "_" + subType)){
             return;
         }
+//2A 02 E9 62  00 0C 00 01  *.�b....
+//00 01 00 00
+        //00 00 00 00  ........
+//00 0E         
         
         // This is an error notification snac.
         if(subType == 1){

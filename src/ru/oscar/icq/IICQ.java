@@ -85,6 +85,8 @@ public class IICQ {
 
         connect.sendPacket(new SetStatus(status,
                 connect.getOptionsConnect().getStatusFlag(), 
+                connect.getOptionsConnect().getUserClass(),
+                connect.getOptionsConnect().getBotInfo(),
                 connect.getOptionsConnect().getDirectConnect(),
                 connect.getOptionsConnect().getProtocolVersion(),
                 connect.getOptionsConnect().isDebug()));  
@@ -101,6 +103,8 @@ public class IICQ {
         connect.getOptionsConnect().setStatusFlag(statusFlag);
         connect.sendPacket(new SetStatus(connect.getOptionsConnect().getStatus(),
                 statusFlag, 
+                connect.getOptionsConnect().getUserClass(),
+                connect.getOptionsConnect().getBotInfo(),
                 connect.getOptionsConnect().getDirectConnect(),
                 connect.getOptionsConnect().getProtocolVersion(),
                 connect.getOptionsConnect().isDebug()));        

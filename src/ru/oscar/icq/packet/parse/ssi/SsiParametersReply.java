@@ -27,6 +27,8 @@ public class SsiParametersReply extends DefaultCommand{
         // set status
         connect.sendPacket(new SetStatus(connect.getOptionsConnect().getStatus(),
                 connect.getOptionsConnect().getStatusFlag(), 
+                connect.getOptionsConnect().getUserClass(),
+                connect.getOptionsConnect().getBotInfo(),
                 connect.getOptionsConnect().getDirectConnect(),
                 connect.getOptionsConnect().getProtocolVersion(),
                 connect.getOptionsConnect().isDebug()));   

@@ -5,10 +5,12 @@ import ru.oscar.DataWork;
 import ru.oscar.Flap;
 import ru.oscar.Snac;
 import ru.oscar.Tlv;
+import ru.oscar.icq.constants.BotInfoConstants;
 import ru.oscar.icq.constants.DirectConnectConstants;
 import ru.oscar.icq.constants.ProtocolVersionConstants;
 import ru.oscar.icq.constants.StatusConstants;
 import ru.oscar.icq.constants.StatusFlagConstants;
+import ru.oscar.icq.constants.UserClassConstants;
 
 /**
  * SNAC (1, 1E)
@@ -18,12 +20,14 @@ import ru.oscar.icq.constants.StatusFlagConstants;
 
 public class SetStatus extends Flap {   
     
-    public SetStatus(StatusConstants status, StatusFlagConstants statusFlag, DirectConnectConstants directConnect
-            ,ProtocolVersionConstants protocolVersion, boolean debug){
+    public SetStatus(StatusConstants status, StatusFlagConstants statusFlag, UserClassConstants userClass,
+            BotInfoConstants botInfo, DirectConnectConstants directConnect ,ProtocolVersionConstants protocolVersion,
+            boolean debug){
         super(CHANNEL2);
         if(debug){
         System.out.println("Status flag: " + statusFlag.toString() +
                 "\nStatus: " + status.toString() + 
+                "\nUser class: " + userClass.toString() +
                 "\nConnect type: " + directConnect.toString() +
                 "\nProtocol Version: " + protocolVersion.toString());     
         }
@@ -66,7 +70,15 @@ public class SetStatus extends Flap {
               
         snac.addTlv(dcTlv);
         
-        // TODO добавить класс пользователя
+        // 001f класса пользователя
+        Tlv cuTlv = new Tlv(0x1f);
+        cuTlv.addTlvData(DataWork.putWord(userClass.getCode()));
+        snac.addTlv(cuTlv);
+        
+        // 0017 bot info
+//        Tlv biTlv = new Tlv(0x17);
+//        biTlv.addTlvData(DataWork.putDWord(botInfo.getCode()));
+//        snac.addTlv(biTlv);
                       
         addSnac(snac);
     }

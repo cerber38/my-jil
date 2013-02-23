@@ -1,11 +1,13 @@
 
 package ru.oscar.core;
 
+import ru.oscar.icq.constants.BotInfoConstants;
 import ru.oscar.icq.constants.DirectConnectConstants;
 import ru.oscar.icq.constants.PrivacyStatusConstants;
 import ru.oscar.icq.constants.ProtocolVersionConstants;
 import ru.oscar.icq.constants.StatusConstants;
 import ru.oscar.icq.constants.StatusFlagConstants;
+import ru.oscar.icq.constants.UserClassConstants;
 import ru.oscar.icq.constants.XStatusConstants;
 import ru.oscar.icq.setting.Capabilities;
 
@@ -28,6 +30,8 @@ public class OptionsConnect {
     private PrivacyStatusConstants privacyStatus;
     private boolean debug;
     private boolean MD5uthorization;
+    private UserClassConstants userClass;
+    private BotInfoConstants botInfo;
 
     /**
      * @return the statusFlag
@@ -216,5 +220,39 @@ public class OptionsConnect {
      */
     public void setMD5uthorization(boolean MD5uthorization) {
         this.MD5uthorization = MD5uthorization;
+    }
+
+    /**
+     * @return the userClass
+     */
+    public UserClassConstants getUserClass() {
+        if(userClass == null){
+            userClass = new UserClassConstants(UserClassConstants.OFFICIAL);
+        }
+        return userClass;
+    }
+
+    /**
+     * @param userClass the userClass to set
+     */
+    public void setUserClass(UserClassConstants userClass) {
+        this.userClass = userClass;
+    }
+
+    /**
+     * @return the botInfo
+     */
+    public BotInfoConstants getBotInfo() {
+        if(botInfo == null){
+            botInfo = new BotInfoConstants(BotInfoConstants.NORMAL_BOT);
+        }
+        return botInfo;
+    }
+
+    /**
+     * @param botInfo the botInfo to set
+     */
+    public void setBotInfo(BotInfoConstants botInfo) {
+        this.botInfo = botInfo;
     }
 }

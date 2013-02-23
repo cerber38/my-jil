@@ -48,6 +48,7 @@ import ru.oscar.icq.constants.MetaLanguagesConstants;
 import ru.oscar.icq.constants.MetaOccupationConstants;
 import ru.oscar.icq.constants.MetaPostBackgroundConstants;
 import ru.oscar.icq.constants.MetaTimeZoneConstants;
+import ru.oscar.icq.constants.UserClassConstants;
 import ru.oscar.icq.listener.MetaAckListener;
 import ru.oscar.icq.listener.MetaInfoListener;
 import ru.oscar.icq.packet.send.meta.BlockMetaData;
@@ -75,6 +76,8 @@ public class testOscar implements ConnectionListener, MessagesListener, XStatusL
         options.setDirectConnect(new DirectConnectConstants(DirectConnectConstants.DC_NORMAL));
         options.setProtocolVersion(new ProtocolVersionConstants(ProtocolVersionConstants.DCP_ICQLITE));
         options.setCapabilities(new Capabilities(Capabilities.JIL));
+        options.setUserClass(new UserClassConstants(UserClassConstants.BOT));
+//        options.setBotInfo(new BotInfoConstants(BotInfoConstants.NORMAL_BOT));
         options.setContactList(true);
         options.setDebug(false);
         options.setTyping(false);

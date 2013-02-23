@@ -79,7 +79,7 @@ public class Snac extends BasicData {
     }
     
     public int getError(){
-        return DataWork.getWord(getDataArray(), 2);
+        return DataWork.getWord(getDataArray(), 0);
     }
         
 }
